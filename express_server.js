@@ -17,6 +17,11 @@ app.get("/", (request, response) => {
   response.end("Welcome to The Link Cruncher!");
 });
 
+// Where to input a new URL
+app.get("/urls/new", (request, response) => {
+  response.render("urls_new");
+});
+
 // Page with all of our URLs
 app.get("/urls", (request, response) => {
   let templateVars = { urls: urlDatabase };
@@ -30,9 +35,6 @@ app.get("/urls/:id", (request, response) => {
   response.render("urls_show", templateVars);
 });
 
-app.get("urls/new", (request, response) => {
-  response.render("urls_new");
-});
 
 // Gives JSON of the URL Database
 app.get("/urls.json", (request, response) => {
