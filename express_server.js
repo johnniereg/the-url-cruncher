@@ -10,13 +10,20 @@ const urlDatabase = {
 };
 
 app.get("/", (request, response) => {
-  response.end("Hello!");
+  response.end("Welcome to The Link Cruncher!");
 });
 
+// Page with all of our URLs
 app.get("/urls", (request, response) => {
   let templateVars = { urls: urlDatabase };
   response.render("urls_index", templateVars);
   console.log(templateVars);
+});
+
+// Page for displaying a single URL and its shortened form.
+app.get("/urls/:id", (request, response) => {
+  let templateVars = { shortURL: request.params.id, longURLs: urlDatabase };
+  response.render("urls_show", templateVars);
 });
 
 app.get("/urls.json", (request, response) => {
