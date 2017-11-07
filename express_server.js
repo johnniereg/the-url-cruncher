@@ -7,6 +7,26 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.set("view engine", "ejs");
 
+// How we will make strings for the crunched links.
+function generateRandomString() {
+  let randomString = "";
+  let possibleChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+  for (let i = 0; i < 6; i ++) {
+    randomString += possibleChars.charAt(Math.floor(Math.random() * possibleChars.length));
+  }
+
+  return randomString;
+}
+
+console.log(generateRandomString());
+console.log(generateRandomString());
+console.log(generateRandomString());
+console.log(generateRandomString());
+
+
+
+// Where we are storing URLs and their short codes.
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -17,12 +37,17 @@ app.get("/", (request, response) => {
   response.end("Welcome to The Link Cruncher!");
 });
 
-// Where to input a new URL
+// Input new URLs to be crunched.
 app.get("/urls/new", (request, response) => {
   response.render("urls_new");
 });
 
-// Page with all of our URLs
+app.post("/urls", (request, response) => {
+  console.log(request.body); // Debug statement to see POST params.
+  response.send("Ok"); // Respond with 'Ok' (we will replace this).
+});
+
+// Page with all of our URLs.
 app.get("/urls", (request, response) => {
   let templateVars = { urls: urlDatabase };
   response.render("urls_index", templateVars);
