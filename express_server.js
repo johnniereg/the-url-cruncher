@@ -19,13 +19,6 @@ function generateRandomString() {
   return randomString;
 }
 
-console.log(generateRandomString());
-console.log(generateRandomString());
-console.log(generateRandomString());
-console.log(generateRandomString());
-
-
-
 // Where we are storing URLs and their short codes.
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -44,6 +37,9 @@ app.get("/urls/new", (request, response) => {
 
 app.post("/urls", (request, response) => {
   console.log(request.body); // Debug statement to see POST params.
+  var crunch = generateRandomString();
+  urlDatabase[crunch] = request.body['longURL'];
+  console.log(urlDatabase);
   response.send("Ok"); // Respond with 'Ok' (we will replace this).
 });
 
