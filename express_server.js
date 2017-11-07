@@ -30,6 +30,10 @@ app.get("/urls/:id", (request, response) => {
   response.render("urls_show", templateVars);
 });
 
+app.get("urls/new", (request, response) => {
+  response.render("urls_new");
+});
+
 // Gives JSON of the URL Database
 app.get("/urls.json", (request, response) => {
   response.json(urlDatabase);
@@ -39,7 +43,6 @@ app.get("/urls.json", (request, response) => {
 app.get("/hello", (request, response) => {
   response.end("<html><body>Hello <b>World</b></body></html>\n");
 });
-
 
 // Turns on server and listens at specified PORT.
 app.listen(PORT, () => {
