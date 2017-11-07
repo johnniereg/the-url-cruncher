@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>TinyApp</title>
+  <title>The Link Cruncher</title>
 </head>
 <body>
-  <!-- Add your EJS code here -->
-  <h1>Your shortened URLs</h1>
+  <h1>The Link Cruncher</h1>
+  <h2>Crunch a link.</h2>
+  <h3>Your crunched URLs</h3>
   <% for (var url in urls) { %>
-    <h2><%= "Short: " + url + " (" + urls[url] + ") " %></h2>
+    <ul>
+      <li><%= "Crunch: " + url + " (" + urls[url] + ") " %></li>
+    </ul>
   <% } %>
 </body>
 </html>
