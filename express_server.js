@@ -39,9 +39,7 @@ app.get("/", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  console.log(typeof req.body.username);
   res.cookie('username', req.body.username);
-  console.log("Cookies: ", req.cookies);
   res.redirect("/urls");
 });
 
