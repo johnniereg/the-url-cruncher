@@ -1,11 +1,13 @@
 const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 8080;
-
 const bodyParser = require("body-parser");
+const morgan = require("morgan");
 
 // Used to take form input and parse it into friendly strings.
 app.use(bodyParser.urlencoded({extended: true}));
+
+app.use(morgan("dev"));
 
 // Sets up EJS views.
 app.set("view engine", "ejs");
