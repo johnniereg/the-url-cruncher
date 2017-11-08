@@ -62,6 +62,11 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+app.post("/urls/:id", (req, res) => {
+  urlDatabase[req.params.id] = req.body.longURL;
+  res.redirect("/urls")
+});
+
 // Redirect to the the long URL
 app.get("/u/:shortURL", (req, res) => {
   let longURL = urlDatabase[req.params.shortURL];
