@@ -40,12 +40,11 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
-  console.log(templateVars);
 });
 
 // Takes in submissions of new URLs.
 app.post("/urls", (req, res) => {
-  console.log(req.body); // Debug statement to see POST params.
+  // console.log(req.body); // Debug statement to see POST params.
   var crunch = generateCrunchString();
   urlDatabase[crunch] = req.body['longURL'];
   res.redirect(`http://localhost:8080/urls/${crunch}`);
@@ -53,7 +52,8 @@ app.post("/urls", (req, res) => {
 
 // Deletes a URL
 app.post("/urls/:id/delete", (req, res) => {
-
+  delete urlDatabase[req.params.id];
+  res.redirect("/urls"); // Sends user back to the URLs page after deletion.
 });
 
 // Page for displaying a single URL and its shortened form.

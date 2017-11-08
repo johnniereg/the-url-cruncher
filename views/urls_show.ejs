@@ -5,8 +5,10 @@
 </head>
 <body>
   <% include ./partials/_header %>
-  <h2>Crunch a link.</h2>
-  <h3>Single crunched link: </h3>
-  <p> <%= "This URL: " + longURLs[shortURL] + " has been crunched to: " + shortURL %> </p>
+  <h3>Short Url: <%= shortURL %></h3>
+  <form action="/urls" method="POST">
+    <input id="longURL" type="text" name="longURL" placeholder="<%= longURLs[shortURL] %>" style="width: 300px">
+    <input type="submit" value="Update">
+  </form>
 </body>
 </html>
