@@ -38,8 +38,15 @@ app.get("/", (req, res) => {
   res.end("Welcome to The Link Cruncher!");
 });
 
+// Handles login and creates a cookie.
 app.post("/login", (req, res) => {
   res.cookie('username', req.body.username);
+  res.redirect("/urls");
+});
+
+// Handles logout, removes cookie and redirects.
+app.post("/logout", (req, res) => {
+  res.clearCookie('username', req.cookies.username);
   res.redirect("/urls");
 });
 
