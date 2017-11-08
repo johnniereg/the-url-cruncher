@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 // Used to log server requests
 app.use(morgan("dev"));
 
-// Used to parse cookies
+// Used to read the values from cookies
 app.use(cookieParser());
 
 // Sets up EJS views.
