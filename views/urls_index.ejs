@@ -12,6 +12,7 @@
     <tr>
       <td><%= "Crunched link: " + url %></td>
       <td><a href="<%= urls[url] %>"> <%= urls[url] %></a></td>
+      <td><form method="GET" action="/urls/<%= url %>"><input type="submit" value="Edit"></form></td>
       <td><form method="POST" action="/urls/<%= url %>/delete"><input type="submit" value="Delete"></form></td>
     </tr>
   <% } %>
