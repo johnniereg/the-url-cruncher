@@ -50,7 +50,7 @@ app.get("/urls/new", (req, res) => {
 
 // Page with all of our URLs.
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase };
+  let templateVars = { urls: urlDatabase, username: req.cookies["username"] };
   res.render("urls_index", templateVars);
 });
 
@@ -70,7 +70,7 @@ app.post("/urls/:id/delete", (req, res) => {
 
 // Page for displaying a single URL and its shortened form.
 app.get("/urls/:id", (req, res) => {
-  let templateVars = { shortURL: req.params.id, longURLs: urlDatabase };
+  let templateVars = { shortURL: req.params.id, longURLs: urlDatabase, username: req.cookies["username"] };
   res.render("urls_show", templateVars);
 });
 
