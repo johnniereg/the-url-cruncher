@@ -3,11 +3,16 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
+const cookieParser = require("cookie-parser");
 
 // Used to take form input and parse it into friendly strings.
 app.use(bodyParser.urlencoded({extended: true}));
 
+// Used to log server requests
 app.use(morgan("dev"));
+
+// Used to parse cookies
+app.use(cookieParser());
 
 // Sets up EJS views.
 app.set("view engine", "ejs");
