@@ -27,7 +27,7 @@ function generateCrunchString() {
   return crunchString;
 }
 
-// Object where we are storing URLs and their short codes.
+// Where we are storing URLs and their short codes.
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -36,6 +36,13 @@ const urlDatabase = {
 // Index page with just a welcome message.
 app.get("/", (req, res) => {
   res.end("Welcome to The Link Cruncher!");
+});
+
+app.post("/login", (req, res) => {
+  console.log(typeof req.body.username);
+  res.cookie('username', req.body.username);
+  console.log("Cookies: ", req.cookies);
+  res.redirect("/urls");
 });
 
 // Where user goes to input new URLs to be crunched.
