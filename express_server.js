@@ -57,7 +57,11 @@ app.get("/urls/:id", (request, response) => {
 // Redirect to the the long URL
 app.get("/u/:shortURL", (request, response) => {
   let longURL = urlDatabase[request.params.shortURL];
-  response.redirect(longURL);
+  if (longURL == undefined) {
+    response.end("Oops! Not a valid crunched link.");
+  } else {
+    response.redirect(longURL);
+  }
 });
 
 // Gives JSON of the URL Database
