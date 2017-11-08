@@ -40,7 +40,7 @@ app.post("/urls", (request, response) => {
   var crunch = generateRandomString();
   urlDatabase[crunch] = request.body['longURL'];
   console.log(urlDatabase);
-  response.send("Ok"); // Respond with 'Ok' (we will replace this).
+  response.redirect(`http://localhost:8080/urls/${crunch}`);
 });
 
 // Page with all of our URLs.
