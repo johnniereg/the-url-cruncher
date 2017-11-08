@@ -15,7 +15,7 @@ function generateCrunchString() {
   let crunchString = "";
   const possibleChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   for (let i = 0; i < 6; i ++) {
-    randomString += possibleChars.charAt(Math.floor(Math.random() * possibleChars.length));
+    crunchString += possibleChars.charAt(Math.floor(Math.random() * possibleChars.length));
   }
   return crunchString;
 }
@@ -48,8 +48,12 @@ app.post("/urls", (req, res) => {
   console.log(req.body); // Debug statement to see POST params.
   var crunch = generateCrunchString();
   urlDatabase[crunch] = req.body['longURL'];
-  console.log(urlDatabase);
   res.redirect(`http://localhost:8080/urls/${crunch}`);
+});
+
+// Deletes a URL
+app.post("/urls/:id/delete", (req, res) => {
+
 });
 
 // Page for displaying a single URL and its shortened form.
