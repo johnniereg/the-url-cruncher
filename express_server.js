@@ -20,8 +20,8 @@ app.set("view engine", "ejs");
 
 // Where we are storing URLs and their short codes.
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": { userID: "userRandomID", longURL: "http://www.lighthouselabs.ca" },
+  "9sm5xK": { userID: "userRandomID", longURL: "http://www.google.com" }
 };
 
 const users = {
@@ -84,8 +84,6 @@ function getUserID(email) {
 
 }
 
-
-
 // Routes
 
 // Index page with just a welcome message.
@@ -121,11 +119,8 @@ app.post("/register", (req, res) => {
   }
 });
 
-
-
-
 app.get("/login", (req, res) => {
-  res.render("login")
+  res.render("login");
 });
 
 // Handle login and logout. Create or remove cookie.
@@ -146,7 +141,6 @@ app.post("/login", (req, res) => {
     res.cookie("user_id", getUserID(req.body.email));
     res.redirect("/urls");
   }
-
 });
 
 app.post("/logout", (req, res) => {
@@ -154,21 +148,20 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
-
 // Where user goes to input new URLs to be crunched.
 app.get("/urls/new", (req, res) => {
   console.log(req.cookies.user_id);
   if (req.cookies.user_id === undefined) {
     res.redirect("/login");
   } else {
-    let templateVars = { urls: urlDatabase, userinfo: users[req.cookies.user_id] };
+    let templateVars = { urlCollection: urlDatabase, userinfo: users[req.cookies.user_id] };
     res.render("urls_new", templateVars);
   }
 });
 
 // Page with all of our URLs.
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase, userinfo: users[req.cookies.user_id] };
+  let templateVars = { urlCollection: urlDatabase, userinfo: users[req.cookies.user_id] };
   res.render("urls_index", templateVars);
 });
 
@@ -182,20 +175,30 @@ app.post("/urls", (req, res) => {
 
 // Deletes a URL
 app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id];
-  res.redirect("/urls"); // Sends user back to the URLs page after deletion.
+  if (urlDatabase[req.params.id].userID !== req.cookies.user_id) {
+    res.status(403);
+    res.send("Error 403. You do not have permission to delete this entry.");
+  } else {
+    delete urlDatabase[req.params.id];
+    res.redirect("/urls"); // Sends user back to the URLs page after deletion.
+  }
 });
 
 // Page for displaying a single URL and its shortened form.
 app.get("/urls/:id", (req, res) => {
-  let templateVars = { shortURL: req.params.id, longURLs: urlDatabase, userinfo: users[req.cookies.user_id] };
+  let templateVars = { shortURL: req.params.id, urlCollection: urlDatabase, userinfo: users[req.cookies.user_id] };
   res.render("urls_show", templateVars);
 });
 
 // Update the long URL associated with a crunched URL
 app.post("/urls/:id", (req, res) => {
-  urlDatabase[req.params.id] = req.body.longURL;
-  res.redirect("/urls")
+  if (urlDatabase[req.params.id].userID !== req.cookies.user_id) {
+    res.status(403);
+    res.send("Error 403. You do not have permission to edit this entry.");
+  } else {
+    urlDatabase[req.params.id].longURL = req.body.longURL;
+    res.redirect("/urls");
+  }
 });
 
 // Redirect to the the long URL

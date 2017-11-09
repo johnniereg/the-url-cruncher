@@ -8,12 +8,12 @@
   <h2>Crunch a link.</h2>
   <h3>Your crunched URLs</h3>
   <table style="width:75%">
-  <% for (let url in urls) { %>
+  <% for (let entry in urlCollection) { %>
     <tr>
-      <td><%= "Crunched link: " + url %></td>
-      <td><a href="<%= urls[url] %>"> <%= urls[url] %></a></td>
-      <td><form method="GET" action="/urls/<%= url %>"><input type="submit" value="Edit"></form></td>
-      <td><form method="POST" action="/urls/<%= url %>/delete"><input type="submit" value="Delete"></form></td>
+      <td><%= "Crunched link: " + entry %></td>
+      <td><a href="<%= urlCollection[entry] %>"> <%= urlCollection[entry].longURL %></a></td>
+      <td><form method="GET" action="/urls/<%= entry %>"><input type="submit" value="Edit"></form></td>
+      <td><form method="POST" action="/urls/<%= entry %>/delete"><input type="submit" value="Delete"></form></td>
     </tr>
   <% } %>
   </table>
