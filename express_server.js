@@ -62,16 +62,20 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  console.log(req.body);
-  console.log(req.body.email);
-  console.log(req.body.password);
-
   let userID = generateRandomString();
-  console.log("Users before: ", users);
-  users[userID] = { "id": userID, "email": req.body.email, "password": req.body.password };
-  console.log("Users after: ", users);
-  // let crunch = generateRandomString();
-  // urlDatabase[crunch] = req.body['longURL'];
+  console.log("Users before: ", users); // Debug --- Remove later.
+
+  users[userID] = {
+    "id": userID,
+    "email": req.body.email,
+    "password": req.body.password
+  };
+
+  console.log("Users after: ", users); // Debug --- Remove later.
+
+  res.cookie("user_id", userID);
+
+
 
 
   res.redirect("/urls");
@@ -79,12 +83,12 @@ app.post("/register", (req, res) => {
 
 // Handle login and logout. Create or remove cookie.
 app.post("/login", (req, res) => {
-  res.cookie('username', req.body.username);
+  res.cookie("username", req.body.username);
   res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('username', req.cookies.username);
+  res.clearCookie("username", req.cookies.username);
   res.redirect("/urls");
 });
 
