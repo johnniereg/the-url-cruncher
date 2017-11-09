@@ -157,8 +157,13 @@ app.post("/logout", (req, res) => {
 
 // Where user goes to input new URLs to be crunched.
 app.get("/urls/new", (req, res) => {
-  let templateVars = { urls: urlDatabase, userinfo: users[req.cookies.user_id] };
-  res.render("urls_new", templateVars);
+  console.log(req.cookies.user_id);
+  if (req.cookies.user_id === undefined) {
+    res.redirect("/login");
+  } else {
+    let templateVars = { urls: urlDatabase, userinfo: users[req.cookies.user_id] };
+    res.render("urls_new", templateVars);
+  }
 });
 
 // Page with all of our URLs.
