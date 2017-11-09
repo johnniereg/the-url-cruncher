@@ -7,15 +7,21 @@
   <% include ./partials/_header %>
   <h2>Crunch a link.</h2>
   <h3>Your crunched URLs</h3>
+  <% if (!userinfo) { %>
+  <h4>You need to login to see your crunched URLs.</h4>
+  <% } else { %>
   <table style="width:75%">
-  <% for (let entry in urlCollection) { %>
-    <tr>
-      <td><%= "Crunched link: " + entry %></td>
-      <td><a href="<%= urlCollection[entry] %>"> <%= urlCollection[entry].longURL %></a></td>
-      <td><form method="GET" action="/urls/<%= entry %>"><input type="submit" value="Edit"></form></td>
-      <td><form method="POST" action="/urls/<%= entry %>/delete"><input type="submit" value="Delete"></form></td>
-    </tr>
-  <% } %>
+    <% for (let entry in urlCollection) { %>
+      <% if (urlCollection[entry].userID === userinfo.id) { %>
+        <tr>
+          <td><%= "Crunched link: " + entry %></td>
+          <td><a href="<%= urlCollection[entry] %>"> <%= urlCollection[entry].longURL %></a></td>
+          <td><form method="GET" action="/urls/<%= entry %>"><input type="submit" value="Edit"></form></td>
+          <td><form method="POST" action="/urls/<%= entry %>/delete"><input type="submit" value="Delete"></form></td>
+        </tr>
+      <% } %>
+    <% } %>
   </table>
+  <% } %>
 </body>
 </html>

@@ -21,7 +21,7 @@ app.set("view engine", "ejs");
 // Where we are storing URLs and their short codes.
 const urlDatabase = {
   "b2xVn2": { userID: "userRandomID", longURL: "http://www.lighthouselabs.ca" },
-  "9sm5xK": { userID: "userRandomID", longURL: "http://www.google.com" }
+  "9sm5xK": { userID: "userRandomID2", longURL: "http://www.google.com" }
 };
 
 const users = {
@@ -81,8 +81,20 @@ function getUserID(email) {
       return users[id].id;
     }
   }
-
 }
+
+function urlsForUser(id) {
+  let userLinks = {};
+  for (let entry in urlDatabase) {
+    if (urlDatabase[entry].userID === id) {
+      userLinks[entry] = urlDatabase[entry];
+    }
+  }
+  return userLinks;
+}
+
+
+
 
 // Routes
 
@@ -224,9 +236,9 @@ app.get("/u/:shortURL", (req, res) => {
 // });
 
 // Turns on server and listens at specified PORT.
-app.listen(PORT, () => {
-  console.log(`The app cruncher is alive. Listening on port ${PORT}!`);
-});
+// app.listen(PORT, () => {
+//   console.log(`The app cruncher is alive. Listening on port ${PORT}!`);
+// });
 
 
 
