@@ -5,8 +5,6 @@ const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 
-// Middleware set-up.
-
 // Used to take form input and parse it into friendly strings.
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -19,9 +17,6 @@ app.use(cookieParser());
 // Sets up EJS views.
 app.set("view engine", "ejs");
 
-
-// Functions for use in this program.
-
 // Make random strings for the crunched links.
 function generateCrunchString() {
   let crunchString = "";
@@ -32,19 +27,11 @@ function generateCrunchString() {
   return crunchString;
 }
 
-
-// Plain text databases.
-
 // Where we are storing URLs and their short codes.
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
-
-
-
-
-// ROUTES
 
 // Index page with just a welcome message.
 app.get("/", (req, res) => {
@@ -127,9 +114,7 @@ app.get("/u/:shortURL", (req, res) => {
 //   res.end("<html><body>Hello <b>World</b></body></html>\n");
 // });
 
-
 // Turns on server and listens at specified PORT.
-
 app.listen(PORT, () => {
   console.log(`The app cruncher is alive. Listening on port ${PORT}!`);
 });
