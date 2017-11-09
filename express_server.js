@@ -33,6 +33,24 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = {
+  "userRandomID": {
+    id: "userRandomId",
+    email: "user@example.com",
+    password: "12345"
+  },
+  "userRandomID2": {
+    id: "userRandomID2",
+    email: "user2@example.com",
+    password: "23456"
+  },
+  "userRandomID3": {
+    id: "userRandomID3",
+    email: "user3@example.com",
+    password: "34567"
+  }
+};
+
 // Index page with just a welcome message.
 app.get("/", (req, res) => {
   res.end("Welcome to The Link Cruncher!");
@@ -43,17 +61,21 @@ app.get("/register", (req, res) => {
   res.render("register");
 });
 
-// Handles login and creates a cookie.
+app.post("/register", (req, res) => {
+
+});
+
+// Handle login and logout. Create or remove cookie.
 app.post("/login", (req, res) => {
   res.cookie('username', req.body.username);
   res.redirect("/urls");
 });
 
-// Handles logout, removes cookie and redirects.
 app.post("/logout", (req, res) => {
   res.clearCookie('username', req.cookies.username);
   res.redirect("/urls");
 });
+
 
 // Where user goes to input new URLs to be crunched.
 app.get("/urls/new", (req, res) => {
