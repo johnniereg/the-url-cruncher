@@ -51,6 +51,11 @@ app.get("/", (req, res) => {
   res.end("Welcome to The Link Cruncher!");
 });
 
+// Registration page.
+app.get("/register", (req, res) => {
+  res.render("registrer");
+});
+
 // Handles login and creates a cookie.
 app.post("/login", (req, res) => {
   res.cookie('username', req.body.username);
@@ -109,6 +114,8 @@ app.get("/u/:shortURL", (req, res) => {
     res.redirect(longURL);
   }
 });
+
+
 
 // // Gives JSON of the URL Database
 // app.get("/urls.json", (req, res) => {
