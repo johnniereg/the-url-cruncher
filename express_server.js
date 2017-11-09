@@ -17,14 +17,14 @@ app.use(cookieParser());
 // Sets up EJS views.
 app.set("view engine", "ejs");
 
-// Make random strings for the crunched links.
-function generateCrunchString() {
-  let crunchString = "";
+// Make random strings for the crunched links and user IDs.
+function generateRandomString() {
+  let randomString = "";
   const possibleChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   for (let i = 0; i < 6; i ++) {
-    crunchString += possibleChars.charAt(Math.floor(Math.random() * possibleChars.length));
+    randomString += possibleChars.charAt(Math.floor(Math.random() * possibleChars.length));
   }
-  return crunchString;
+  return randomString;
 }
 
 // Where we are storing URLs and their short codes.
@@ -62,7 +62,19 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
+  console.log(req.body);
+  console.log(req.body.email);
+  console.log(req.body.password);
 
+  let userID = generateRandomString();
+  console.log("Users before: ", users);
+  users[userID] = { "id": userID, "email": req.body.email, "password": req.body.password };
+  console.log("Users after: ", users);
+  // let crunch = generateRandomString();
+  // urlDatabase[crunch] = req.body['longURL'];
+
+
+  res.redirect("/urls");
 });
 
 // Handle login and logout. Create or remove cookie.
@@ -91,7 +103,7 @@ app.get("/urls", (req, res) => {
 // Takes in submissions of new URLs.
 app.post("/urls", (req, res) => {
   // console.log(req.body); // Debug statement to see POST params.
-  var crunch = generateCrunchString();
+  let crunch = generateRandomString();
   urlDatabase[crunch] = req.body['longURL'];
   res.redirect(`http://localhost:8080/urls/${crunch}`);
 });
