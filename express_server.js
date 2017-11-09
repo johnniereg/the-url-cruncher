@@ -26,7 +26,7 @@ const urlDatabase = {
 
 const users = {
   "userRandomID": {
-    id: "userRandomId",
+    id: "userRandomID",
     email: "user@example.com",
     password: "12345"
   },
@@ -55,13 +55,35 @@ function generateRandomString() {
 // Checks our users database to see if the email address exists already.
 function checkUserExistance(email) {
   let exists = false;
-  for (var id in users) {
+  for (let id in users) {
     if (users[id].email === email) {
       exists = true;
     }
   }
   return exists;
 }
+
+function checkPassword(email, password) {
+  let passwordAccuracy = false;
+    for (let id in users) {
+      if (users[id].email === email) {
+        if (users[id].password === password) {
+          passwordAccuracy = true;
+        }
+      }
+    }
+  return passwordAccuracy;
+}
+
+function getUserID(email) {
+  for (let id in users) {
+    if (users[id].email === email) {
+      return users[id].id;
+    }
+  }
+
+}
+
 
 
 // Routes
@@ -99,14 +121,32 @@ app.post("/register", (req, res) => {
   }
 });
 
+
+
+
 app.get("/login", (req, res) => {
   res.render("login")
 });
 
 // Handle login and logout. Create or remove cookie.
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username);
-  res.redirect("/urls");
+  console.log("Supplied email:", req.body.email);
+  console.log("Supplied password:", req.body.password);
+// Check that user inputed an email and password.
+  if (!req.body.email | !req.body.password) {
+    res.status(400);
+    res.send("Error. Must enter a valid email and password.");
+  } else if (!checkUserExistance(req.body.email)) {
+    res.status(403);
+    res.send("Error. That email is not registered.");
+  } else if (checkPassword(req.body.email, req.body.password) == false) {
+    res.status(403);
+    res.send("Incorrect password entered.");
+  } else {
+    res.cookie("user_id", getUserID(req.body.email));
+    res.redirect("/urls");
+  }
+
 });
 
 app.post("/logout", (req, res) => {
@@ -162,7 +202,6 @@ app.get("/u/:shortURL", (req, res) => {
     res.redirect(longURL);
   }
 });
-
 
 
 // // Gives JSON of the URL Database
