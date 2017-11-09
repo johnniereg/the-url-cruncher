@@ -169,7 +169,8 @@ app.get("/urls", (req, res) => {
 app.post("/urls", (req, res) => {
   // console.log(req.body); // Debug statement to see POST params.
   let crunch = generateRandomString();
-  urlDatabase[crunch] = req.body['longURL'];
+  urlDatabase[crunch] = { "userID": req.cookies.user_id, "longURL": req.body['longURL'] };
+  console.log(urlDatabase);
   res.redirect(`http://localhost:8080/urls/${crunch}`);
 });
 
