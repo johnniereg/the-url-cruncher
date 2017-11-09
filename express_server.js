@@ -17,15 +17,6 @@ app.use(cookieParser());
 // Sets up EJS views.
 app.set("view engine", "ejs");
 
-// Make random strings for the crunched links and user IDs.
-function generateRandomString() {
-  let randomString = "";
-  const possibleChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  for (let i = 0; i < 6; i ++) {
-    randomString += possibleChars.charAt(Math.floor(Math.random() * possibleChars.length));
-  }
-  return randomString;
-}
 
 // Where we are storing URLs and their short codes.
 const urlDatabase = {
@@ -51,6 +42,30 @@ const users = {
   }
 };
 
+// Make random strings for the crunched links and user IDs.
+function generateRandomString() {
+  let randomString = "";
+  const possibleChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  for (let i = 0; i < 6; i ++) {
+    randomString += possibleChars.charAt(Math.floor(Math.random() * possibleChars.length));
+  }
+  return randomString;
+}
+
+// Checks our users database to see if the email address exists already.
+function checkUserExistance(email) {
+  let exists = false;
+  for (var id in users) {
+    if (users[id].email === email) {
+      exists = true;
+    }
+  }
+  return exists;
+}
+
+
+// Routes
+
 // Index page with just a welcome message.
 app.get("/", (req, res) => {
   res.end("Welcome to The Link Cruncher!");
@@ -63,6 +78,17 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => {
   let userID = generateRandomString();
+
+  // Check that user inputed an email and password.
+  if (!req.body.email | !req.body.password) {
+    res.status(400);
+    res.send("Error. Must enter a valid email and password.");
+  // Check that the email isn't already registered.
+  } else if (checkUserExistance(req.body.email)) {
+    res.status(400);
+    res.send("Error. That email is already registered.");
+  } else {
+
   console.log("Users before: ", users); // Debug --- Remove later.
 
   users[userID] = {
@@ -74,11 +100,8 @@ app.post("/register", (req, res) => {
   console.log("Users after: ", users); // Debug --- Remove later.
 
   res.cookie("user_id", userID);
-
-
-
-
   res.redirect("/urls");
+  }
 });
 
 // Handle login and logout. Create or remove cookie.
