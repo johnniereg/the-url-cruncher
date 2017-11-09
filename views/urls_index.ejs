@@ -12,14 +12,12 @@
   <% } else { %>
   <table style="width:75%">
     <% for (let entry in urlCollection) { %>
-      <% if (urlCollection[entry].userID === userinfo.id) { %>
-        <tr>
-          <td><%= "Crunched link: " + entry %></td>
-          <td><a href="<%= urlCollection[entry] %>"> <%= urlCollection[entry].longURL %></a></td>
-          <td><form method="GET" action="/urls/<%= entry %>"><input type="submit" value="Edit"></form></td>
-          <td><form method="POST" action="/urls/<%= entry %>/delete"><input type="submit" value="Delete"></form></td>
-        </tr>
-      <% } %>
+      <tr>
+        <td><%= "Crunched link: " + entry %></td>
+        <td><a href="<%= urlCollection[entry] %>"> <%= urlCollection[entry].longURL %></a></td>
+        <td><form method="GET" action="/urls/<%= entry %>"><input type="submit" value="Edit"></form></td>
+        <td><form method="POST" action="/urls/<%= entry %>/delete"><input type="submit" value="Delete"></form></td>
+      </tr>
     <% } %>
   </table>
   <% } %>

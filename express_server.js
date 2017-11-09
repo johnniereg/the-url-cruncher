@@ -83,6 +83,7 @@ function getUserID(email) {
   }
 }
 
+// Gives new URL container holding just the given user ID's associated URLs.
 function urlsForUser(id) {
   let userLinks = {};
   for (let entry in urlDatabase) {
@@ -94,9 +95,7 @@ function urlsForUser(id) {
 }
 
 
-
-
-// Routes
+// Routes //
 
 // Index page with just a welcome message.
 app.get("/", (req, res) => {
@@ -173,7 +172,7 @@ app.get("/urls/new", (req, res) => {
 
 // Page with all of our URLs.
 app.get("/urls", (req, res) => {
-  let templateVars = { urlCollection: urlDatabase, userinfo: users[req.cookies.user_id] };
+  let templateVars = { urlCollection: urlsForUser(req.cookies.user_id), userinfo: users[req.cookies.user_id] };
   res.render("urls_index", templateVars);
 });
 
@@ -199,8 +198,15 @@ app.post("/urls/:id/delete", (req, res) => {
 
 // Page for displaying a single URL and its shortened form.
 app.get("/urls/:id", (req, res) => {
-  let templateVars = { shortURL: req.params.id, urlCollection: urlDatabase, userinfo: users[req.cookies.user_id] };
-  res.render("urls_show", templateVars);
+  if (req.cookies.user_id === undefined) {
+    res.redirect("/login");
+  } else if (urlDatabase[req.params.id].userID !== req.cookies.user_id) {
+    res.status(403);
+    res.send("Error 403. This URL does not belong to you.");
+  } else {
+    let templateVars = { shortURL: req.params.id, urlCollection: urlDatabase, userinfo: users[req.cookies.user_id] };
+    res.render("urls_show", templateVars);
+  }
 });
 
 // Update the long URL associated with a crunched URL
@@ -216,7 +222,7 @@ app.post("/urls/:id", (req, res) => {
 
 // Redirect to the the long URL
 app.get("/u/:shortURL", (req, res) => {
-  let longURL = urlDatabase[req.params.shortURL];
+  let longURL = urlDatabase[req.params.shortURL].longURL;
   if (longURL === undefined) {
     res.end("Oops! Not a valid crunched link.");
   } else {
@@ -236,9 +242,9 @@ app.get("/u/:shortURL", (req, res) => {
 // });
 
 // Turns on server and listens at specified PORT.
-// app.listen(PORT, () => {
-//   console.log(`The app cruncher is alive. Listening on port ${PORT}!`);
-// });
+app.listen(PORT, () => {
+  console.log(`The app cruncher is alive. Listening on port ${PORT}!`);
+});
 
 
 
