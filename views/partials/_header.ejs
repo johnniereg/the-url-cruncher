@@ -1,10 +1,6 @@
 <h1 style="color:darkred;font-size:60px;font-family:sans-serif;">The Link Cruncher</h1>
 <% if (userinfo == undefined) {%>
-  <form action="/login" method="POST" style="font-family:sans-serif;">
-    <label for="login">Login:</label>
-    <input id="login" type="text" name="username" placeholder="username">
-    <input type="submit" value="Submit">
-  </form>
+  <p> you need to register </p>
 <% } else { %>
   <form action="/logout" method="POST" style="font-family:sans-serif;">
     <label for="login">Logged in as: <%= userinfo.email %></label> <input type="submit" value="Logout">
