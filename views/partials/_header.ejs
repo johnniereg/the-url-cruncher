@@ -1,5 +1,5 @@
 <h1 style="color:darkred;font-size:60px;font-family:sans-serif;">The Link Cruncher</h1>
-<% if (username == undefined) {%>
+<% if (userinfo == undefined) {%>
   <form action="/login" method="POST" style="font-family:sans-serif;">
     <label for="login">Login:</label>
     <input id="login" type="text" name="username" placeholder="username">
@@ -7,6 +7,6 @@
   </form>
 <% } else { %>
   <form action="/logout" method="POST" style="font-family:sans-serif;">
-    <label for="login">Logged in as: <%= username %></label> <input type="submit" value="Logout">
+    <label for="login">Logged in as: <%= userinfo.email %></label> <input type="submit" value="Logout">
   </form>
 <% }%>

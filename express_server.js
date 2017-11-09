@@ -78,7 +78,6 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => {
   let userID = generateRandomString();
-
   // Check that user inputed an email and password.
   if (!req.body.email | !req.body.password) {
     res.status(400);
@@ -88,17 +87,13 @@ app.post("/register", (req, res) => {
     res.status(400);
     res.send("Error. That email is already registered.");
   } else {
-
   console.log("Users before: ", users); // Debug --- Remove later.
-
   users[userID] = {
     "id": userID,
     "email": req.body.email,
     "password": req.body.password
   };
-
   console.log("Users after: ", users); // Debug --- Remove later.
-
   res.cookie("user_id", userID);
   res.redirect("/urls");
   }
@@ -118,12 +113,13 @@ app.post("/logout", (req, res) => {
 
 // Where user goes to input new URLs to be crunched.
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  let templateVars = { urls: urlDatabase, userinfo: users[req.cookies.user_id] };
+  res.render("urls_new", templateVars);
 });
 
 // Page with all of our URLs.
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase, username: req.cookies["username"] };
+  let templateVars = { urls: urlDatabase, userinfo: users[req.cookies.user_id] };
   res.render("urls_index", templateVars);
 });
 
@@ -143,7 +139,7 @@ app.post("/urls/:id/delete", (req, res) => {
 
 // Page for displaying a single URL and its shortened form.
 app.get("/urls/:id", (req, res) => {
-  let templateVars = { shortURL: req.params.id, longURLs: urlDatabase, username: req.cookies["username"] };
+  let templateVars = { shortURL: req.params.id, longURLs: urlDatabase, userinfo: users[req.cookies.user_id] };
   res.render("urls_show", templateVars);
 });
 
