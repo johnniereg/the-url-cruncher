@@ -40,7 +40,7 @@ app.get("/", (req, res) => {
 
 // Registration page.
 app.get("/register", (req, res) => {
-  res.render("registrer");
+  res.render("register");
 });
 
 // Handles login and creates a cookie.
