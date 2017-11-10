@@ -131,7 +131,7 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   let userID = generateRandomString();
   // Check that user inputed an email and password.
-  if (!req.body.email | !req.body.password) {
+  if (!req.body.email || !req.body.password) {
     res.status(400);
     res.send("<h1>Error. Must enter a valid email and password.</h1>");
   // Check that the email isn't already registered.
@@ -160,7 +160,7 @@ app.get("/login", (req, res) => {
 // Handle login and logout. Create or remove cookie.
 app.post("/login", (req, res) => {
 // Check that user inputed an email and password.
-  if (!req.body.email | !req.body.password) {
+  if (!req.body.email || !req.body.password) {
     res.status(400);
     res.send("Error 400. Must enter a valid email and password.");
   } else if (!checkUserExistance(req.body.email)) {
