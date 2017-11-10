@@ -220,19 +220,6 @@ app.post("/urls", (req, res) => {
 });
 
 // Deletes a URL
-// app.post("/urls/:id/delete", (req, res) => {
-//   if (req.session.user_id === undefined) {
-//     res.status(403);
-//     res.send("<h3>Error 403. You need to be <a href=\"/login\">logged in</a>.</h3>");
-//   } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
-//     res.status(403);
-//     res.send("Error 403. You do not have permission to delete this entry.");
-//   } else {
-//     delete urlDatabase[req.params.id];
-//     res.redirect("/urls"); // Sends user back to the URLs page after deletion.
-//   }
-// });
-
 app.delete("/urls/:id", (req, res) => {
   if (req.session.user_id === undefined) {
     res.status(403);
@@ -263,7 +250,21 @@ app.get("/urls/:id", (req, res) => {
 });
 
 // Update the long URL associated with a crunched URL
-app.post("/urls/:id", (req, res) => {
+// app.post("/urls/:id", (req, res) => {
+//   if (req.session.user_id === undefined) {
+//     res.status(403);
+//     res.send("<h3>Error 403. You need to be <a href=\"/login\">logged in</a>.</h3>");
+//   } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
+//     res.status(403);
+//     res.send("Error 403. You do not have permission to edit this entry.");
+//   } else {
+//     urlDatabase[req.params.id].longURL = req.body.longURL;
+//     res.redirect("/urls");
+//   }
+// });
+
+// Update the long URL associated with a crunched URL
+app.put("/urls/:id", (req, res) => {
   if (req.session.user_id === undefined) {
     res.status(403);
     res.send("<h3>Error 403. You need to be <a href=\"/login\">logged in</a>.</h3>");
