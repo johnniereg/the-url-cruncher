@@ -99,6 +99,17 @@ function urlsForUser(id) {
   return userLinks;
 }
 
+function verifyCrunchedLink(crunchedlink) {
+  let linkExistance = false;
+  for (let link in urlDatabase) {
+    if (link === crunchedlink) {
+      linkExistance = true;
+    }
+  }
+  return linkExistance;
+}
+
+
 
 // Routes //
 
@@ -113,7 +124,11 @@ app.get("/", (req, res) => {
 
 // Registration page.
 app.get("/register", (req, res) => {
-  res.render("register");
+  if (req.session.user_id !== undefined) {
+    res.redirect("/urls");
+  } else {
+    res.render("register");
+  }
 });
 
 app.post("/register", (req, res) => {
@@ -121,7 +136,7 @@ app.post("/register", (req, res) => {
   // Check that user inputed an email and password.
   if (!req.body.email | !req.body.password) {
     res.status(400);
-    res.send("Error. Must enter a valid email and password.");
+    res.send("<h1>Error. Must enter a valid email and password.</h1>");
   // Check that the email isn't already registered.
   } else if (checkUserExistance(req.body.email)) {
     res.status(400);
@@ -186,20 +201,33 @@ app.get("/urls/new", (req, res) => {
 
 // Page with all of our URLs.
 app.get("/urls", (req, res) => {
-  let templateVars = { urlCollection: urlsForUser(req.session.user_id), userinfo: users[req.session.user_id] };
-  res.render("urls_index", templateVars);
+  if (req.session.user_id !== undefined) {
+    let templateVars = { urlCollection: urlsForUser(req.session.user_id), userinfo: users[req.session.user_id] };
+    res.render("urls_index", templateVars);
+  } else {
+    res.status(403);
+    res.send("Error you need to be logged in.");
+  }
 });
 
 // Takes in submissions of new URLs.
 app.post("/urls", (req, res) => {
-  let crunch = generateRandomString();
-  urlDatabase[crunch] = { "userID": req.session.user_id, "longURL": req.body['longURL'] };
-  res.redirect(`http://localhost:8080/urls/${crunch}`);
+  if (req.session.user_id !== undefined) {
+    let crunch = generateRandomString();
+    urlDatabase[crunch] = { "userID": req.session.user_id, "longURL": req.body['longURL'] };
+    res.redirect(`http://localhost:8080/urls/${crunch}`);
+  } else {
+    res.status(403);
+    res.send("Error 403. You need to be logged in.");
+  }
 });
 
 // Deletes a URL
 app.post("/urls/:id/delete", (req, res) => {
-  if (urlDatabase[req.params.id].userID !== req.session.user_id) {
+  if (req.session.user_id === undefined) {
+    res.status(403);
+    res.send("Error 403. Must be logged in.");
+  } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     res.status(403);
     res.send("Error 403. You do not have permission to delete this entry.");
   } else {
@@ -210,7 +238,10 @@ app.post("/urls/:id/delete", (req, res) => {
 
 // Page for displaying a single URL and its shortened form.
 app.get("/urls/:id", (req, res) => {
-  if (req.session.user_id === undefined) {
+  if (!verifyCrunchedLink(req.params.id)) {
+    res.status(403);
+    res.send("Not a valid crunched URL.");
+  } else if (req.session.user_id === undefined) {
     res.redirect("/login");
   } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     res.status(403);
@@ -223,7 +254,11 @@ app.get("/urls/:id", (req, res) => {
 
 // Update the long URL associated with a crunched URL
 app.post("/urls/:id", (req, res) => {
-  if (urlDatabase[req.params.id].userID !== req.session.user_id) {
+
+  if (req.session.user_id === undefined) {
+    res.status(403);
+    res.send("Error 403. Must be logged in.");
+  } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     res.status(403);
     res.send("Error 403. You do not have permission to edit this entry.");
   } else {
@@ -234,23 +269,13 @@ app.post("/urls/:id", (req, res) => {
 
 // Redirect to the the long URL
 app.get("/u/:shortURL", (req, res) => {
-  let longURL = urlDatabase[req.params.shortURL].longURL;
-  if (longURL === undefined) {
-    res.end("Oops! Not a valid crunched link.");
+  // let longURL = urlDatabase[req.params.shortURL].longURL;
+  if (verifyCrunchedLink(req.params.shortURL)) {
+    res.redirect(urlDatabase[req.params.shortURL].longURL);
   } else {
-    res.redirect(longURL);
+    res.end("Oops! Not a valid crunched link.");
   }
 });
-
-// // Gives JSON of the URL Database
-// app.get("/urls.json", (req, res) => {
-//   res.json(urlDatabase);
-// });
-
-// // app.get test for page /hello
-// app.get("/hello", (req, res) => {
-//   res.end("<html><body>Hello <b>World</b></body></html>\n");
-// });
 
 // Turns on server and listens at specified PORT.
 app.listen(PORT, () => {

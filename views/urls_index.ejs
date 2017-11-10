@@ -5,11 +5,7 @@
 </head>
 <body>
   <% include ./partials/_header %>
-  <h2>Crunch a link.</h2>
   <h3>Your crunched URLs</h3>
-  <% if (!userinfo) { %>
-  <h4>You need to login to see your crunched URLs.</h4>
-  <% } else { %>
   <table style="width:75%">
     <% for (let entry in urlCollection) { %>
       <tr>
@@ -20,6 +16,6 @@
       </tr>
     <% } %>
   </table>
-  <% } %>
+  <a href="urls/new"><h2>Crunch a link.</h2></a>
 </body>
 </html>
