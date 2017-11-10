@@ -54,8 +54,8 @@ const users = {
 };
 
 const analytics = {
-  "b2xVn2": { "visits": 0 },
-  "9sm5xK": { "visits": 0 }
+  "b2xVn2": { "visits": 3 },
+  "9sm5xK": { "visits": 5 }
 };
 
 // Make random strings for the crunched links and user IDs.
@@ -133,6 +133,19 @@ function verifyUserID(userID) {
   }
   return verification;
 }
+
+function countViews(crunchedURL) {
+  let views = 0;
+  for (let entry in analytics) {
+    if (entry === crunchedURL) {
+      views = analytics[entry].visits;
+    }
+  }
+  return views;
+
+}
+
+console.log("Should be 3: ", countViews("b2xVn2"));
 
 // Routes //
 
@@ -264,7 +277,7 @@ app.get("/urls/:id", (req, res) => {
     res.send("Error 403. This crunched URL does not belong to you.");
   // Page for displaying a single URL and its shortened form.
   } else {
-    let templateVars = { shortURL: req.params.id, urlCollection: urlDatabase, userinfo: users[req.session.user_id], stats: analytics };
+    let templateVars = { shortURL: req.params.id, urlCollection: urlDatabase, userinfo: users[req.session.user_id], visits: countViews(req.params.id) };
     res.render("urls_show", templateVars);
   }
 });
