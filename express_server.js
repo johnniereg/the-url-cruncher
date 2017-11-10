@@ -5,12 +5,13 @@ const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const cookieSession = require("cookie-session");
 const bcrypt = require("bcrypt");
+const methodOverride = require("method-override");
 
 // Used to take form input and parse it into friendly strings.
 app.use(bodyParser.urlencoded({extended: true}));
 
-// Used to log server requests
-app.use(morgan("dev"));
+// Used to allow PUT/DELETE
+app.use(methodOverride("_method"));
 
 // Used to read the values from cookies
 app.use(cookieSession({
@@ -18,11 +19,12 @@ app.use(cookieSession({
   keys: ["drone"]
 }));
 
+// Used to log server requests
+app.use(morgan("dev"));
+
 // Sets up EJS views.
 app.set("view engine", "ejs");
 
-
-// Where we are storing URLs and their short codes.
 const urlDatabase = {
   "b2xVn2": { userID: "userRandomID", longURL: "http://www.lighthouselabs.ca" },
   "9sm5xK": { userID: "userRandomID2", longURL: "http://www.google.com" }
@@ -67,6 +69,7 @@ function checkUserExistance(email) {
   return exists;
 }
 
+// Verifies password accuracy.
 function checkPassword(email, password) {
   let passwordAccuracy = false;
     for (let id in users) {
@@ -79,6 +82,7 @@ function checkPassword(email, password) {
   return passwordAccuracy;
 }
 
+// Gets corresponding user ID for login email.
 function getUserID(email) {
   for (let id in users) {
     if (users[id].email === email) {
@@ -98,19 +102,20 @@ function urlsForUser(id) {
   return userLinks;
 }
 
-function verifyCrunchedLink(crunchedlink) {
+// Checks that a crunched link
+function verifyCrunchedURL(crunchedURL) {
   let linkExistance = false;
   for (let link in urlDatabase) {
-    if (link === crunchedlink) {
+    if (link === crunchedURL) {
       linkExistance = true;
     }
   }
   return linkExistance;
 }
 
+
 // Routes //
 
-// Index page with just a welcome message.
 app.get("/", (req, res) => {
   if (req.session.user_id === undefined) {
     res.redirect("/login");
@@ -119,7 +124,6 @@ app.get("/", (req, res) => {
   }
 });
 
-// Registration page.
 app.get("/register", (req, res) => {
   if (req.session.user_id !== undefined) {
     res.redirect("/urls");
@@ -139,13 +143,13 @@ app.post("/register", (req, res) => {
     res.status(400);
     res.send("<h3>Error. That email is already registered. <a href=\"/register\">Try again.</a></h3>");
   } else {
-  users[userID] = {
-    "id": userID,
-    "email": req.body.email,
-    "password": bcrypt.hashSync(req.body.password, 10)
-  };
-  req.session.user_id = userID;
-  res.redirect("/urls");
+    users[userID] = {
+      "id": userID,
+      "email": req.body.email,
+      "password": bcrypt.hashSync(req.body.password, 10)
+    };
+    req.session.user_id = userID;
+    res.redirect("/urls");
   }
 });
 
@@ -159,7 +163,7 @@ app.get("/login", (req, res) => {
 
 // Handle login and logout. Create or remove cookie.
 app.post("/login", (req, res) => {
-// Check that user inputed an email and password.
+  // Check that user inputed an email and password.
   if (!req.body.email || !req.body.password) {
     res.status(400);
     res.send("<h3>Error 400. Must enter a valid email and password. <a href=\"/login\">Try again.</a></h3>");
@@ -176,6 +180,7 @@ app.post("/login", (req, res) => {
   }
 });
 
+// Logout. Clears cookies.
 app.post("/logout", (req, res) => {
   req.session = null;
   res.redirect("/urls");
@@ -191,7 +196,7 @@ app.get("/urls/new", (req, res) => {
   }
 });
 
-// Page with all of our URLs.
+// Page with all of the users URLs.
 app.get("/urls", (req, res) => {
   if (req.session.user_id !== undefined) {
     let templateVars = { urlCollection: urlsForUser(req.session.user_id), userinfo: users[req.session.user_id] };
@@ -206,7 +211,7 @@ app.get("/urls", (req, res) => {
 app.post("/urls", (req, res) => {
   if (req.session.user_id !== undefined) {
     let crunch = generateRandomString();
-    urlDatabase[crunch] = { "userID": req.session.user_id, "longURL": req.body['longURL'] };
+    urlDatabase[crunch] = { "userID": req.session.user_id, "longURL": req.body["longURL"] };
     res.redirect(`http://localhost:8080/urls/${crunch}`);
   } else {
     res.status(403);
@@ -215,7 +220,20 @@ app.post("/urls", (req, res) => {
 });
 
 // Deletes a URL
-app.post("/urls/:id/delete", (req, res) => {
+// app.post("/urls/:id/delete", (req, res) => {
+//   if (req.session.user_id === undefined) {
+//     res.status(403);
+//     res.send("<h3>Error 403. You need to be <a href=\"/login\">logged in</a>.</h3>");
+//   } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
+//     res.status(403);
+//     res.send("Error 403. You do not have permission to delete this entry.");
+//   } else {
+//     delete urlDatabase[req.params.id];
+//     res.redirect("/urls"); // Sends user back to the URLs page after deletion.
+//   }
+// });
+
+app.delete("/urls/:id", (req, res) => {
   if (req.session.user_id === undefined) {
     res.status(403);
     res.send("<h3>Error 403. You need to be <a href=\"/login\">logged in</a>.</h3>");
@@ -230,7 +248,7 @@ app.post("/urls/:id/delete", (req, res) => {
 
 // Page for displaying a single URL and its shortened form.
 app.get("/urls/:id", (req, res) => {
-  if (!verifyCrunchedLink(req.params.id)) {
+  if (!verifyCrunchedURL(req.params.id)) {
     res.status(404);
     res.send("Error 404. Not a valid crunched URL.");
   } else if (req.session.user_id === undefined) {
@@ -261,7 +279,7 @@ app.post("/urls/:id", (req, res) => {
 // Redirect to the the long URL
 app.get("/u/:shortURL", (req, res) => {
   // let longURL = urlDatabase[req.params.shortURL].longURL;
-  if (verifyCrunchedLink(req.params.shortURL)) {
+  if (verifyCrunchedURL(req.params.shortURL)) {
     res.redirect(urlDatabase[req.params.shortURL].longURL);
   } else {
     res.status(404)
