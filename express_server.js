@@ -30,8 +30,8 @@ app.set("view engine", "ejs");
 
 // Object for storing URLs. Includes sample URLs for testing the program.
 const urlDatabase = {
-  "b2xVn2": { userID: "userRandomID", longURL: "http://www.lighthouselabs.ca", "visits": 0, "unique": {} },
-  "9sm5xK": { userID: "userRandomID2", longURL: "http://www.google.com", "visits": 0, "unique": {} }
+  "b2xVn2": { userID: "userRandomID", longURL: "http://www.lighthouselabs.ca", "visits": 0, "unique": ["userRandomID", "userRandomID2"] },
+  "9sm5xK": { userID: "userRandomID2", longURL: "http://www.google.com", "visits": 0, "unique": ["userRandomID3"] }
 };
 
 // Object for storing users. Inclues sample users for testing the program.
@@ -52,12 +52,6 @@ const users = {
     password: "$2a$10$E0aHoRpCtZwBTWHxGPLT5u6lOhXt8ySqn0uHcPKu/2uLSqJt1oJ/G"
   }
 };
-
-// Object for tracking analytics.
-// const analytics = {
-//   "b2xVn2": { "visits": 0, "unique": [] },
-//   "9sm5xK": { "visits": 0, "unique": [] }
-// };
 
 // Functions
 
@@ -137,6 +131,7 @@ function verifyUserID(userID) {
   return verification;
 }
 
+// Counts up total views to a crunched URL.
 function countViews(crunchedURL) {
   let views = 0;
   for (let entry in urlDatabase) {
@@ -147,6 +142,20 @@ function countViews(crunchedURL) {
   return views;
 }
 
+// Checks if a visitor is a unique visitor to a crunched URL.
+function isUniqueVisitor(visitorid, crunchedURL) {
+  let unique = true;
+  let visitors = urlDatabase[crunchedURL].unique;
+  visitors.forEach(function(visitor) {
+    if (visitor === visitorid) {
+      unique = false;
+    }
+  });
+  return unique;
+}
+
+// Counts up unique visitors to a URL.
+// May not need.
 function countUniqueViews(crunchedURL) {
   let views = 0;
   for (let entry in urlDatabase) {
@@ -256,7 +265,11 @@ app.put("/urls", (req, res) => {
   // Takes in submissions of new URLs.
   if (verifyUserID(req.session.user_id)) {
     let crunch = generateRandomString();
-    urlDatabase[crunch] = { "userID": req.session.user_id, "longURL": req.body["longURL"], "visits": 0, "unique": {} };
+    urlDatabase[crunch] = { "userID": req.session.user_id,
+                            "longURL": req.body.longURL,
+                            "visits": 0,
+                            "unique": []
+                           };
     res.redirect(`http://localhost:8080/urls/${crunch}`);
   } else {
     res.status(403);
@@ -293,7 +306,7 @@ app.get("/urls/:id", (req, res) => {
                          urlCollection: urlDatabase,
                          userinfo: users[req.session.user_id],
                          visits: countViews(req.params.id),
-                         unique: countUniqueViews(req.params.id) };
+                         unique: urlDatabase[req.params.id].unique.length };
     res.render("urls_show", templateVars);
   }
 });
@@ -314,25 +327,18 @@ app.post("/urls/:id", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   if (verifyCrunchedURL(req.params.shortURL)) {
-
+    // Adds to total views counter.
     urlDatabase[req.params.shortURL].visits += 1;
-
-
     // Adds cookie to track unique visits.
     if (req.session.unique === undefined) {
       let uniqueVisitor = generateRandomString();
       req.session.unique = uniqueVisitor;
     }
-
-    urlDatabase[req.params.shortURL].unique[req.session.unique] = "visited";
-    console.log(urlDatabase[req.params.shortURL].unique);
-
-
-
-
-
-
-  // Redirect to the the long URL
+    // Check that user is unique. Add them to unique visitors.
+    if (isUniqueVisitor(req.session.unique, req.params.shortURL) === true) {
+      urlDatabase[req.params.shortURL].unique.push(req.session.unique)
+    }
+    // Redirect to the the long URL
     res.redirect(urlDatabase[req.params.shortURL].longURL);
   } else {
     res.status(404);
