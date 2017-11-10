@@ -4,6 +4,7 @@ const PORT = process.env.PORT || 8080;
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
+const bcrypt = require("bcrypt");
 
 // Used to take form input and parse it into friendly strings.
 app.use(bodyParser.urlencoded({extended: true}));
@@ -28,17 +29,17 @@ const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "12345"
+    password: bcrypt.hashSync("12345", 10)
   },
   "userRandomID2": {
     id: "userRandomID2",
     email: "user2@example.com",
-    password: "23456"
+    password: bcrypt.hashSync("23456", 10)
   },
   "userRandomID3": {
     id: "userRandomID3",
     email: "user3@example.com",
-    password: "34567"
+    password: bcrypt.hashSync("34567", 10)
   }
 };
 
@@ -122,7 +123,7 @@ app.post("/register", (req, res) => {
   users[userID] = {
     "id": userID,
     "email": req.body.email,
-    "password": req.body.password
+    "password": bcrypt.hashSync(req.body.password, 10)
   };
   console.log("Users after: ", users); // Debug --- Remove later.
   res.cookie("user_id", userID);
@@ -136,18 +137,25 @@ app.get("/login", (req, res) => {
 
 // Handle login and logout. Create or remove cookie.
 app.post("/login", (req, res) => {
+
   console.log("Supplied email:", req.body.email);
   console.log("Supplied password:", req.body.password);
+
+
 // Check that user inputed an email and password.
   if (!req.body.email | !req.body.password) {
     res.status(400);
-    res.send("Error. Must enter a valid email and password.");
+    res.send("Error 400. Must enter a valid email and password.");
+
   } else if (!checkUserExistance(req.body.email)) {
     res.status(403);
-    res.send("Error. That email is not registered.");
-  } else if (checkPassword(req.body.email, req.body.password) == false) {
+    res.send("Error 403. That email is not registered.");
+
+  } else if (!bcrypt.compareSync(req.body.password, users[getUserID(req.body.email)].password)) {
     res.status(403);
-    res.send("Incorrect password entered.");
+    res.send("Error 403. Incorrect password entered.");
+
+
   } else {
     res.cookie("user_id", getUserID(req.body.email));
     res.redirect("/urls");
@@ -202,7 +210,7 @@ app.get("/urls/:id", (req, res) => {
     res.redirect("/login");
   } else if (urlDatabase[req.params.id].userID !== req.cookies.user_id) {
     res.status(403);
-    res.send("Error 403. This URL does not belong to you.");
+    res.send("Error 403. This crunched URL does not belong to you.");
   } else {
     let templateVars = { shortURL: req.params.id, urlCollection: urlDatabase, userinfo: users[req.cookies.user_id] };
     res.render("urls_show", templateVars);
@@ -229,7 +237,6 @@ app.get("/u/:shortURL", (req, res) => {
     res.redirect(longURL);
   }
 });
-
 
 // // Gives JSON of the URL Database
 // app.get("/urls.json", (req, res) => {
