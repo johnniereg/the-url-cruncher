@@ -133,11 +133,11 @@ app.post("/register", (req, res) => {
   // Check that user inputed an email and password.
   if (!req.body.email || !req.body.password) {
     res.status(400);
-    res.send("<h1>Error. Must enter a valid email and password.</h1>");
+    res.send("<h1>Error. Must enter a valid email and password. <a href=\"/register\">Try again.</a></h1>");
   // Check that the email isn't already registered.
   } else if (checkUserExistance(req.body.email)) {
     res.status(400);
-    res.send("Error. That email is already registered.");
+    res.send("<h1>Error. That email is already registered. <a href=\"/register\">Try again.</a></h1>");
   } else {
   users[userID] = {
     "id": userID,
@@ -162,14 +162,14 @@ app.post("/login", (req, res) => {
 // Check that user inputed an email and password.
   if (!req.body.email || !req.body.password) {
     res.status(400);
-    res.send("Error 400. Must enter a valid email and password.");
+    res.send("<h1>Error 400. Must enter a valid email and password. <a href=\"/login\">Try again.</a></h1>");
   } else if (!checkUserExistance(req.body.email)) {
     res.status(403);
-    res.send("Error 403. That email is not registered.");
+    res.send("<h1>Error 403. That email is not registered. <a href=\"/login\">Try again.</a></h1>");
   // Checks that the user password matches, if false they are blocked.
   } else if (!bcrypt.compareSync(req.body.password, users[getUserID(req.body.email)].password)) {
     res.status(403);
-    res.send("Error 403. Incorrect password entered.");
+    res.send("<h1>Error 403. Incorrect password entered. <a href=\"/login\">Try again.</a></h1>");
   } else {
     req.session.user_id = getUserID(req.body.email);
     res.redirect("/urls");
@@ -198,7 +198,7 @@ app.get("/urls", (req, res) => {
     res.render("urls_index", templateVars);
   } else {
     res.status(403);
-    res.send("Error you need to be logged in.");
+    res.send("<h1>Error 403. You need to be <a href=\"/login\">logged in</a>.</h1>");
   }
 });
 
@@ -210,7 +210,7 @@ app.post("/urls", (req, res) => {
     res.redirect(`http://localhost:8080/urls/${crunch}`);
   } else {
     res.status(403);
-    res.send("Error 403. You need to be logged in.");
+    res.send("<h1>Error 403. You need to be <a href=\"/login\">logged in</a>.</h1>");
   }
 });
 
@@ -218,7 +218,7 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:id/delete", (req, res) => {
   if (req.session.user_id === undefined) {
     res.status(403);
-    res.send("Error 403. Must be logged in.");
+    res.send("<h1>Error 403. You need to be <a href=\"/login\">logged in</a>.</h1>");
   } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     res.status(403);
     res.send("Error 403. You do not have permission to delete this entry.");
@@ -232,7 +232,7 @@ app.post("/urls/:id/delete", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   if (!verifyCrunchedLink(req.params.id)) {
     res.status(403);
-    res.send("Not a valid crunched URL.");
+    res.send("Error 403. Not a valid crunched URL.");
   } else if (req.session.user_id === undefined) {
     res.redirect("/login");
   } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
@@ -248,7 +248,7 @@ app.get("/urls/:id", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   if (req.session.user_id === undefined) {
     res.status(403);
-    res.send("Error 403. Must be logged in.");
+    res.send("<h1>Error 403. You need to be <a href=\"/login\">logged in</a>.</h1>");
   } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     res.status(403);
     res.send("Error 403. You do not have permission to edit this entry.");
@@ -264,7 +264,8 @@ app.get("/u/:shortURL", (req, res) => {
   if (verifyCrunchedLink(req.params.shortURL)) {
     res.redirect(urlDatabase[req.params.shortURL].longURL);
   } else {
-    res.end("Oops! Not a valid crunched link.");
+    res.status(404)
+    res.end("Error 404. Not found. Not a valid crunched link.");
   }
 });
 
