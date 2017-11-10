@@ -7,7 +7,7 @@
   <% include ./partials/_header %>
   <h3>Crunched URL: <%= shortURL %></h3>
   <h5>Update the long URL.</h5>
-  <form method="POST" action="/urls/<%= shortURL %>?_method=PUT">
+  <form method="POST" action="/urls/<%= shortURL %>">
     <input id="longURL" type="text" name="longURL" placeholder="<%= urlCollection[shortURL].longURL %>" style="width: 300px">
     <input type="submit" value="Update">
   </form>

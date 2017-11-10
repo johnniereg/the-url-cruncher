@@ -223,7 +223,7 @@ app.get("/urls", (req, res) => {
   }
 });
 
-app.post("/urls", (req, res) => {
+app.put("/urls", (req, res) => {
   // Takes in submissions of new URLs.
   if (verifyUserID(req.session.user_id)) {
     let crunch = generateRandomString();
@@ -265,7 +265,7 @@ app.get("/urls/:id", (req, res) => {
   }
 });
 
-app.put("/urls/:id", (req, res) => {
+app.post("/urls/:id", (req, res) => {
   if (!verifyUserID(req.session.user_id)) {
     res.status(403);
     res.send("<h3>Error 403. You need to be <a href=\"/login\">logged in</a>.</h3>");

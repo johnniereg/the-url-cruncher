@@ -6,7 +6,7 @@
 <body style="font-family:sans-serif;padding:10px">
   <% include ./partials/_header %>
   <h3>Crunch a new URL</h3>
-  <form method="POST" action="/urls" style="margin:25px;">
+  <form method="POST" action="/urls?_method=PUT" style="margin:25px;">
     <label for="longURL">Enter a URL:</label>
     <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">
     <input type="submit" value="Submit">
