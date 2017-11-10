@@ -30,8 +30,8 @@ app.set("view engine", "ejs");
 
 // Object for storing URLs. Includes sample URLs for testing the program.
 const urlDatabase = {
-  "b2xVn2": { userID: "userRandomID", longURL: "http://www.lighthouselabs.ca" },
-  "9sm5xK": { userID: "userRandomID2", longURL: "http://www.google.com" }
+  "b2xVn2": { userID: "userRandomID", longURL: "http://www.lighthouselabs.ca", "visits": 0, "unique": {} },
+  "9sm5xK": { userID: "userRandomID2", longURL: "http://www.google.com", "visits": 0, "unique": {} }
 };
 
 // Object for storing users. Inclues sample users for testing the program.
@@ -54,10 +54,10 @@ const users = {
 };
 
 // Object for tracking analytics.
-const analytics = {
-  "b2xVn2": { "visits": 0 },
-  "9sm5xK": { "visits": 0 }
-};
+// const analytics = {
+//   "b2xVn2": { "visits": 0, "unique": [] },
+//   "9sm5xK": { "visits": 0, "unique": [] }
+// };
 
 // Functions
 
@@ -139,16 +139,25 @@ function verifyUserID(userID) {
 
 function countViews(crunchedURL) {
   let views = 0;
-  for (let entry in analytics) {
+  for (let entry in urlDatabase) {
     if (entry === crunchedURL) {
-      views = analytics[entry].visits;
+      views = urlDatabase[entry].visits;
     }
   }
   return views;
-
 }
 
-console.log("Should be 3: ", countViews("b2xVn2"));
+function countUniqueViews(crunchedURL) {
+  let views = 0;
+  for (let entry in urlDatabase) {
+    if (entry === crunchedURL) {
+      for (let unique in urlDatabase[entry].unique) {
+        views += 1;
+      }
+    }
+  }
+  return views;
+}
 
 // Routes //
 
@@ -247,7 +256,7 @@ app.put("/urls", (req, res) => {
   // Takes in submissions of new URLs.
   if (verifyUserID(req.session.user_id)) {
     let crunch = generateRandomString();
-    urlDatabase[crunch] = { "userID": req.session.user_id, "longURL": req.body["longURL"] };
+    urlDatabase[crunch] = { "userID": req.session.user_id, "longURL": req.body["longURL"], "visits": 0, "unique": {} };
     res.redirect(`http://localhost:8080/urls/${crunch}`);
   } else {
     res.status(403);
@@ -280,7 +289,11 @@ app.get("/urls/:id", (req, res) => {
     res.send("<h3>Error 403. This crunched URL does not belong to you.</h3>");
   // Page for displaying a single URL and its shortened form.
   } else {
-    let templateVars = { shortURL: req.params.id, urlCollection: urlDatabase, userinfo: users[req.session.user_id], visits: countViews(req.params.id) };
+    let templateVars = { shortURL: req.params.id,
+                         urlCollection: urlDatabase,
+                         userinfo: users[req.session.user_id],
+                         visits: countViews(req.params.id),
+                         unique: countUniqueViews(req.params.id) };
     res.render("urls_show", templateVars);
   }
 });
@@ -301,15 +314,28 @@ app.post("/urls/:id", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   if (verifyCrunchedURL(req.params.shortURL)) {
-    if (analytics[req.params.shortURL] === undefined) {
-      analytics[req.params.shortURL] = { "visits": 1};
-    } else {
-      analytics[req.params.shortURL]["visits"] += 1;
+
+    urlDatabase[req.params.shortURL].visits += 1;
+
+
+    // Adds cookie to track unique visits.
+    if (req.session.unique === undefined) {
+      let uniqueVisitor = generateRandomString();
+      req.session.unique = uniqueVisitor;
     }
-    res.redirect(urlDatabase[req.params.shortURL].longURL);
+
+    urlDatabase[req.params.shortURL].unique[req.session.unique] = "visited";
+    console.log(urlDatabase[req.params.shortURL].unique);
+
+
+
+
+
+
   // Redirect to the the long URL
+    res.redirect(urlDatabase[req.params.shortURL].longURL);
   } else {
-    res.status(404)
+    res.status(404);
     res.end("<h3>Error 404. Not found. Not a valid crunched link.</h3>");
   }
 });
