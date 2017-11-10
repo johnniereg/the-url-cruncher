@@ -104,7 +104,11 @@ function urlsForUser(id) {
 
 // Index page with just a welcome message.
 app.get("/", (req, res) => {
-  res.end("Welcome to The Link Cruncher!");
+  if (req.session.user_id === undefined) {
+    res.redirect("/login");
+  } else {
+    res.redirect("/urls");
+  }
 });
 
 // Registration page.
@@ -123,29 +127,26 @@ app.post("/register", (req, res) => {
     res.status(400);
     res.send("Error. That email is already registered.");
   } else {
-  console.log("Users before: ", users); // Debug --- Remove later.
   users[userID] = {
     "id": userID,
     "email": req.body.email,
     "password": bcrypt.hashSync(req.body.password, 10)
   };
-  console.log("Users after: ", users); // Debug --- Remove later.
-  // res.cookie("user_id", userID);
   req.session.user_id = userID;
   res.redirect("/urls");
   }
 });
 
 app.get("/login", (req, res) => {
-  res.render("login");
+  if (req.session.user_id !== undefined) {
+    res.redirect("/urls");
+  } else {
+    res.render("login");
+  }
 });
 
 // Handle login and logout. Create or remove cookie.
 app.post("/login", (req, res) => {
-
-  console.log("Supplied email:", req.body.email);
-  console.log("Supplied password:", req.body.password);
-
 
 // Check that user inputed an email and password.
   if (!req.body.email | !req.body.password) {
@@ -156,13 +157,12 @@ app.post("/login", (req, res) => {
     res.status(403);
     res.send("Error 403. That email is not registered.");
 
+  // Checks that the user password matches, if false they are blocked.
   } else if (!bcrypt.compareSync(req.body.password, users[getUserID(req.body.email)].password)) {
     res.status(403);
     res.send("Error 403. Incorrect password entered.");
 
-
   } else {
-    // res.cookie("user_id", getUserID(req.body.email));
     req.session.user_id = getUserID(req.body.email);
     res.redirect("/urls");
   }
@@ -175,7 +175,7 @@ app.post("/logout", (req, res) => {
 
 // Where user goes to input new URLs to be crunched.
 app.get("/urls/new", (req, res) => {
-  // console.log(req.cookies.user_id);
+
   if (req.session.user_id === undefined) {
     res.redirect("/login");
   } else {
@@ -192,10 +192,8 @@ app.get("/urls", (req, res) => {
 
 // Takes in submissions of new URLs.
 app.post("/urls", (req, res) => {
-  // console.log(req.body); // Debug statement to see POST params.
   let crunch = generateRandomString();
   urlDatabase[crunch] = { "userID": req.session.user_id, "longURL": req.body['longURL'] };
-  console.log(urlDatabase);
   res.redirect(`http://localhost:8080/urls/${crunch}`);
 });
 
