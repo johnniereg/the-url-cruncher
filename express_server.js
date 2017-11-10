@@ -258,7 +258,7 @@ app.delete("/urls/:id", (req, res) => {
     res.send("<h3>Error 403. You need to be <a href=\"/login\">logged in</a>.</h3>");
   } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     res.status(403);
-    res.send("Error 403. You do not have permission to delete this entry.");
+    res.send("<h3>Error 403. You do not have permission to delete this entry.</h3>");
   // Deletes the crunched URL entry.
   } else {
     delete urlDatabase[req.params.id];
@@ -269,12 +269,12 @@ app.delete("/urls/:id", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   if (!verifyCrunchedURL(req.params.id)) {
     res.status(404);
-    res.send("Error 404. Not a valid crunched URL.");
+    res.send("<h3>Error 404. Not a valid crunched URL.</h3>");
   } else if (!verifyUserID(req.session.user_id)) {
     res.redirect("/login");
   } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     res.status(403);
-    res.send("Error 403. This crunched URL does not belong to you.");
+    res.send("<h3>Error 403. This crunched URL does not belong to you.</h3>");
   // Page for displaying a single URL and its shortened form.
   } else {
     let templateVars = { shortURL: req.params.id, urlCollection: urlDatabase, userinfo: users[req.session.user_id], visits: countViews(req.params.id) };
@@ -288,7 +288,7 @@ app.post("/urls/:id", (req, res) => {
     res.send("<h3>Error 403. You need to be <a href=\"/login\">logged in</a>.</h3>");
   } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     res.status(403);
-    res.send("Error 403. You do not have permission to edit this entry.");
+    res.send("<h3>Error 403. You do not have permission to edit this entry.</h3>");
   // Update the long URL associated with a crunched URL
   } else {
     urlDatabase[req.params.id].longURL = req.body.longURL;
@@ -307,7 +307,7 @@ app.get("/u/:shortURL", (req, res) => {
   // Redirect to the the long URL
   } else {
     res.status(404)
-    res.end("Error 404. Not found. Not a valid crunched link.");
+    res.end("<h3>Error 404. Not found. Not a valid crunched link.</h3>");
   }
 });
 
