@@ -53,10 +53,13 @@ const users = {
   }
 };
 
+// Object for tracking analytics.
 const analytics = {
   "b2xVn2": { "visits": 0 },
   "9sm5xK": { "visits": 0 }
 };
+
+// Functions
 
 // Make random strings for the crunched links and user IDs.
 function generateRandomString() {
