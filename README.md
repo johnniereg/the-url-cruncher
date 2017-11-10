@@ -5,8 +5,8 @@ that allows users to shorten long URLs (a la bit.ly).
 
 ## Final Product
 
-!["screenshot description"](#)
-!["screenshot description"](#)
+!["URLs page."](https://github.com/johnniereg/tinyapp/blob/master/docs/urls-page.png?raw=true)
+!["Registration page."](https://github.com/johnniereg/tinyapp/blob/master/docs/register-page.png?raw=true)
 
 ## Dependencies
 
