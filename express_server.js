@@ -53,6 +53,11 @@ const users = {
   }
 };
 
+const analytics = {
+  "b2xVn2": { "visits": 0 },
+  "9sm5xK": { "visits": 0 }
+};
+
 // Make random strings for the crunched links and user IDs.
 function generateRandomString() {
   let randomString = "";
@@ -128,7 +133,6 @@ function verifyUserID(userID) {
   }
   return verification;
 }
-
 
 // Routes //
 
@@ -223,7 +227,7 @@ app.get("/urls", (req, res) => {
   }
 });
 
-app.post("/urls", (req, res) => {
+app.put("/urls", (req, res) => {
   // Takes in submissions of new URLs.
   if (verifyUserID(req.session.user_id)) {
     let crunch = generateRandomString();
@@ -260,12 +264,12 @@ app.get("/urls/:id", (req, res) => {
     res.send("Error 403. This crunched URL does not belong to you.");
   // Page for displaying a single URL and its shortened form.
   } else {
-    let templateVars = { shortURL: req.params.id, urlCollection: urlDatabase, userinfo: users[req.session.user_id] };
+    let templateVars = { shortURL: req.params.id, urlCollection: urlDatabase, userinfo: users[req.session.user_id], stats: analytics };
     res.render("urls_show", templateVars);
   }
 });
 
-app.put("/urls/:id", (req, res) => {
+app.post("/urls/:id", (req, res) => {
   if (!verifyUserID(req.session.user_id)) {
     res.status(403);
     res.send("<h3>Error 403. You need to be <a href=\"/login\">logged in</a>.</h3>");
