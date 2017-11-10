@@ -113,11 +113,21 @@ function verifyCrunchedURL(crunchedURL) {
   return linkExistance;
 }
 
+function verifyUserID(userID) {
+  let verification = false;
+  for (let user in users) {
+    if (user === userID) {
+      verification = true;
+    }
+  }
+  return verification;
+}
+
 
 // Routes //
 
 app.get("/", (req, res) => {
-  if (req.session.user_id === undefined) {
+  if (!verifyUserID(req.session.user_id)) {
     res.redirect("/login");
   } else {
     res.redirect("/urls");
@@ -125,7 +135,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  if (req.session.user_id !== undefined) {
+  if (verifyUserID(req.session.user_id)) {
     res.redirect("/urls");
   } else {
     res.render("register");
@@ -154,7 +164,7 @@ app.post("/register", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  if (req.session.user_id !== undefined) {
+  if (verifyUserID(req.session.user_id)) {
     res.redirect("/urls");
   } else {
     res.render("login");
@@ -188,7 +198,7 @@ app.post("/logout", (req, res) => {
 
 // Where user goes to input new URLs to be crunched.
 app.get("/urls/new", (req, res) => {
-  if (req.session.user_id === undefined) {
+  if (!verifyUserID(req.session.user_id)) {
     res.redirect("/login");
   } else {
     let templateVars = { urlCollection: urlDatabase, userinfo: users[req.session.user_id] };
@@ -198,7 +208,7 @@ app.get("/urls/new", (req, res) => {
 
 // Page with all of the users URLs.
 app.get("/urls", (req, res) => {
-  if (req.session.user_id !== undefined) {
+  if (verifyUserID(req.session.user_id)) {
     let templateVars = { urlCollection: urlsForUser(req.session.user_id), userinfo: users[req.session.user_id] };
     res.render("urls_index", templateVars);
   } else {
@@ -209,7 +219,7 @@ app.get("/urls", (req, res) => {
 
 // Takes in submissions of new URLs.
 app.post("/urls", (req, res) => {
-  if (req.session.user_id !== undefined) {
+  if (verifyUserID(req.session.user_id)) {
     let crunch = generateRandomString();
     urlDatabase[crunch] = { "userID": req.session.user_id, "longURL": req.body["longURL"] };
     res.redirect(`http://localhost:8080/urls/${crunch}`);
@@ -221,7 +231,7 @@ app.post("/urls", (req, res) => {
 
 // Deletes a URL
 app.delete("/urls/:id", (req, res) => {
-  if (req.session.user_id === undefined) {
+  if (!verifyUserID(req.session.user_id)) {
     res.status(403);
     res.send("<h3>Error 403. You need to be <a href=\"/login\">logged in</a>.</h3>");
   } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
@@ -238,7 +248,7 @@ app.get("/urls/:id", (req, res) => {
   if (!verifyCrunchedURL(req.params.id)) {
     res.status(404);
     res.send("Error 404. Not a valid crunched URL.");
-  } else if (req.session.user_id === undefined) {
+  } else if (!verifyUserID(req.session.user_id)) {
     res.redirect("/login");
   } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     res.status(403);
@@ -265,7 +275,7 @@ app.get("/urls/:id", (req, res) => {
 
 // Update the long URL associated with a crunched URL
 app.put("/urls/:id", (req, res) => {
-  if (req.session.user_id === undefined) {
+  if (!verifyUserID(req.session.user_id)) {
     res.status(403);
     res.send("<h3>Error 403. You need to be <a href=\"/login\">logged in</a>.</h3>");
   } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
