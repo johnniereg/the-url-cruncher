@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>The Link Cruncher</title>
+  <title>The URL Cruncher</title>
 </head>
-<body>
+<body style="font-family:sans-serif;padding:10px">
   <% include ./partials/_header %>
-  <form action="/urls" method="POST" style="margin:50px;">
+  <form action="/urls" method="POST" style="margin:25px;">
     <label for="longURL">Enter a URL to crunch:</label>
     <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">
     <input type="submit" value="Submit">
   </form>
+  <a href="/urls"><button>Your URLs</button></a>
 </body>
 </html>

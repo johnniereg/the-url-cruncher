@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>The Link Cruncher</title>
+  <title>The URL Cruncher</title>
 </head>
-<body>
+<body style="font-family:sans-serif;padding:10px">
   <% include ./partials/_header %>
   <h3>Crunched URL: <%= shortURL %></h3>
   <form action="/urls/<%= shortURL %>" method="POST">
     <input id="longURL" type="text" name="longURL" placeholder="<%= urlCollection[shortURL].longURL %>" style="width: 300px">
     <input type="submit" value="Update">
   </form>
+  <br>
+  <a href="/urls"><button>Your URLs</button></a>
 </body>
 </html>

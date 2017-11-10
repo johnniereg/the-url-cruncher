@@ -133,11 +133,11 @@ app.post("/register", (req, res) => {
   // Check that user inputed an email and password.
   if (!req.body.email || !req.body.password) {
     res.status(400);
-    res.send("<h1>Error. Must enter a valid email and password. <a href=\"/register\">Try again.</a></h1>");
+    res.send("<h3>Error. Must enter a valid email and password. <a href=\"/register\">Try again.</a></h3>");
   // Check that the email isn't already registered.
   } else if (checkUserExistance(req.body.email)) {
     res.status(400);
-    res.send("<h1>Error. That email is already registered. <a href=\"/register\">Try again.</a></h1>");
+    res.send("<h3>Error. That email is already registered. <a href=\"/register\">Try again.</a></h3>");
   } else {
   users[userID] = {
     "id": userID,
@@ -162,14 +162,14 @@ app.post("/login", (req, res) => {
 // Check that user inputed an email and password.
   if (!req.body.email || !req.body.password) {
     res.status(400);
-    res.send("<h1>Error 400. Must enter a valid email and password. <a href=\"/login\">Try again.</a></h1>");
+    res.send("<h3>Error 400. Must enter a valid email and password. <a href=\"/login\">Try again.</a></h3>");
   } else if (!checkUserExistance(req.body.email)) {
     res.status(403);
-    res.send("<h1>Error 403. That email is not registered. <a href=\"/login\">Try again.</a></h1>");
+    res.send("<h3>Error 403. That email is not registered. <a href=\"/login\">Try again.</a></h3>");
   // Checks that the user password matches, if false they are blocked.
   } else if (!bcrypt.compareSync(req.body.password, users[getUserID(req.body.email)].password)) {
     res.status(403);
-    res.send("<h1>Error 403. Incorrect password entered. <a href=\"/login\">Try again.</a></h1>");
+    res.send("<h3>Error 403. Incorrect password entered. <a href=\"/login\">Try again.</a></h3>");
   } else {
     req.session.user_id = getUserID(req.body.email);
     res.redirect("/urls");
@@ -198,7 +198,7 @@ app.get("/urls", (req, res) => {
     res.render("urls_index", templateVars);
   } else {
     res.status(403);
-    res.send("<h1>Error 403. You need to be <a href=\"/login\">logged in</a>.</h1>");
+    res.send("<h3>Error 403. You need to be <a href=\"/login\">logged in</a> to view URLs.</h3>");
   }
 });
 
@@ -210,7 +210,7 @@ app.post("/urls", (req, res) => {
     res.redirect(`http://localhost:8080/urls/${crunch}`);
   } else {
     res.status(403);
-    res.send("<h1>Error 403. You need to be <a href=\"/login\">logged in</a>.</h1>");
+    res.send("<h3>Error 403. You need to be <a href=\"/login\">logged in</a>.</h3>");
   }
 });
 
@@ -218,7 +218,7 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:id/delete", (req, res) => {
   if (req.session.user_id === undefined) {
     res.status(403);
-    res.send("<h1>Error 403. You need to be <a href=\"/login\">logged in</a>.</h1>");
+    res.send("<h3>Error 403. You need to be <a href=\"/login\">logged in</a>.</h3>");
   } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     res.status(403);
     res.send("Error 403. You do not have permission to delete this entry.");
@@ -248,7 +248,7 @@ app.get("/urls/:id", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   if (req.session.user_id === undefined) {
     res.status(403);
-    res.send("<h1>Error 403. You need to be <a href=\"/login\">logged in</a>.</h1>");
+    res.send("<h3>Error 403. You need to be <a href=\"/login\">logged in</a>.</h3>");
   } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     res.status(403);
     res.send("Error 403. You do not have permission to edit this entry.");
