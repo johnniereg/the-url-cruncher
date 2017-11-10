@@ -219,7 +219,7 @@ app.get("/urls", (req, res) => {
     res.render("urls_index", templateVars);
   } else {
     res.status(403);
-    res.send("<h3>Error 403. You need to be <a href=\"/login\">logged in</a> to view URLs.</h3>");
+    res.redirect("/login");
   }
 });
 
