@@ -231,8 +231,8 @@ app.post("/urls/:id/delete", (req, res) => {
 // Page for displaying a single URL and its shortened form.
 app.get("/urls/:id", (req, res) => {
   if (!verifyCrunchedLink(req.params.id)) {
-    res.status(403);
-    res.send("Error 403. Not a valid crunched URL.");
+    res.status(404);
+    res.send("Error 404. Not a valid crunched URL.");
   } else if (req.session.user_id === undefined) {
     res.redirect("/login");
   } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
