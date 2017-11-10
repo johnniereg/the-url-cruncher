@@ -4,7 +4,6 @@ const PORT = process.env.PORT || 8080;
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const cookieSession = require("cookie-session");
-// const cookieParser = require("cookie-parser");
 const bcrypt = require("bcrypt");
 
 // Used to take form input and parse it into friendly strings.
@@ -109,8 +108,6 @@ function verifyCrunchedLink(crunchedlink) {
   return linkExistance;
 }
 
-
-
 // Routes //
 
 // Index page with just a welcome message.
@@ -162,21 +159,17 @@ app.get("/login", (req, res) => {
 
 // Handle login and logout. Create or remove cookie.
 app.post("/login", (req, res) => {
-
 // Check that user inputed an email and password.
   if (!req.body.email | !req.body.password) {
     res.status(400);
     res.send("Error 400. Must enter a valid email and password.");
-
   } else if (!checkUserExistance(req.body.email)) {
     res.status(403);
     res.send("Error 403. That email is not registered.");
-
   // Checks that the user password matches, if false they are blocked.
   } else if (!bcrypt.compareSync(req.body.password, users[getUserID(req.body.email)].password)) {
     res.status(403);
     res.send("Error 403. Incorrect password entered.");
-
   } else {
     req.session.user_id = getUserID(req.body.email);
     res.redirect("/urls");
@@ -190,7 +183,6 @@ app.post("/logout", (req, res) => {
 
 // Where user goes to input new URLs to be crunched.
 app.get("/urls/new", (req, res) => {
-
   if (req.session.user_id === undefined) {
     res.redirect("/login");
   } else {
@@ -254,7 +246,6 @@ app.get("/urls/:id", (req, res) => {
 
 // Update the long URL associated with a crunched URL
 app.post("/urls/:id", (req, res) => {
-
   if (req.session.user_id === undefined) {
     res.status(403);
     res.send("Error 403. Must be logged in.");
