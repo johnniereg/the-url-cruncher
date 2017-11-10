@@ -3,7 +3,8 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
-const cookieParser = require("cookie-parser");
+const cookieSession = require("cookie-session");
+// const cookieParser = require("cookie-parser");
 const bcrypt = require("bcrypt");
 
 // Used to take form input and parse it into friendly strings.
@@ -13,7 +14,10 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(morgan("dev"));
 
 // Used to read the values from cookies
-app.use(cookieParser());
+app.use(cookieSession({
+  name: "session",
+  keys: ["drone"]
+}));
 
 // Sets up EJS views.
 app.set("view engine", "ejs");
@@ -29,17 +33,17 @@ const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: bcrypt.hashSync("12345", 10)
+    password: "$2a$10$3KOvugIouEimgBNlfIXJfeleboPrh/g7PoZc03q/pbIWMouemp.VS"
   },
   "userRandomID2": {
     id: "userRandomID2",
     email: "user2@example.com",
-    password: bcrypt.hashSync("23456", 10)
+    password: "$2a$10$RQgNV4Y0RpmYkYR.JtnGiuNQxpQ0JMoQV5iWSODsUOc55SlvJUgOS"
   },
   "userRandomID3": {
     id: "userRandomID3",
     email: "user3@example.com",
-    password: bcrypt.hashSync("34567", 10)
+    password: "$2a$10$E0aHoRpCtZwBTWHxGPLT5u6lOhXt8ySqn0uHcPKu/2uLSqJt1oJ/G"
   }
 };
 
@@ -126,7 +130,8 @@ app.post("/register", (req, res) => {
     "password": bcrypt.hashSync(req.body.password, 10)
   };
   console.log("Users after: ", users); // Debug --- Remove later.
-  res.cookie("user_id", userID);
+  // res.cookie("user_id", userID);
+  req.session.user_id = userID;
   res.redirect("/urls");
   }
 });
@@ -157,30 +162,31 @@ app.post("/login", (req, res) => {
 
 
   } else {
-    res.cookie("user_id", getUserID(req.body.email));
+    // res.cookie("user_id", getUserID(req.body.email));
+    req.session.user_id = getUserID(req.body.email);
     res.redirect("/urls");
   }
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id", req.cookies.user_id);
+  req.session = null;
   res.redirect("/urls");
 });
 
 // Where user goes to input new URLs to be crunched.
 app.get("/urls/new", (req, res) => {
-  console.log(req.cookies.user_id);
-  if (req.cookies.user_id === undefined) {
+  // console.log(req.cookies.user_id);
+  if (req.session.user_id === undefined) {
     res.redirect("/login");
   } else {
-    let templateVars = { urlCollection: urlDatabase, userinfo: users[req.cookies.user_id] };
+    let templateVars = { urlCollection: urlDatabase, userinfo: users[req.session.user_id] };
     res.render("urls_new", templateVars);
   }
 });
 
 // Page with all of our URLs.
 app.get("/urls", (req, res) => {
-  let templateVars = { urlCollection: urlsForUser(req.cookies.user_id), userinfo: users[req.cookies.user_id] };
+  let templateVars = { urlCollection: urlsForUser(req.session.user_id), userinfo: users[req.session.user_id] };
   res.render("urls_index", templateVars);
 });
 
@@ -188,14 +194,14 @@ app.get("/urls", (req, res) => {
 app.post("/urls", (req, res) => {
   // console.log(req.body); // Debug statement to see POST params.
   let crunch = generateRandomString();
-  urlDatabase[crunch] = { "userID": req.cookies.user_id, "longURL": req.body['longURL'] };
+  urlDatabase[crunch] = { "userID": req.session.user_id, "longURL": req.body['longURL'] };
   console.log(urlDatabase);
   res.redirect(`http://localhost:8080/urls/${crunch}`);
 });
 
 // Deletes a URL
 app.post("/urls/:id/delete", (req, res) => {
-  if (urlDatabase[req.params.id].userID !== req.cookies.user_id) {
+  if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     res.status(403);
     res.send("Error 403. You do not have permission to delete this entry.");
   } else {
@@ -206,20 +212,20 @@ app.post("/urls/:id/delete", (req, res) => {
 
 // Page for displaying a single URL and its shortened form.
 app.get("/urls/:id", (req, res) => {
-  if (req.cookies.user_id === undefined) {
+  if (req.session.user_id === undefined) {
     res.redirect("/login");
-  } else if (urlDatabase[req.params.id].userID !== req.cookies.user_id) {
+  } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     res.status(403);
     res.send("Error 403. This crunched URL does not belong to you.");
   } else {
-    let templateVars = { shortURL: req.params.id, urlCollection: urlDatabase, userinfo: users[req.cookies.user_id] };
+    let templateVars = { shortURL: req.params.id, urlCollection: urlDatabase, userinfo: users[req.session.user_id] };
     res.render("urls_show", templateVars);
   }
 });
 
 // Update the long URL associated with a crunched URL
 app.post("/urls/:id", (req, res) => {
-  if (urlDatabase[req.params.id].userID !== req.cookies.user_id) {
+  if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     res.status(403);
     res.send("Error 403. You do not have permission to edit this entry.");
   } else {
