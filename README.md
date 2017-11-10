@@ -17,6 +17,7 @@ that allows users to shorten long URLs (a la bit.ly).
 - body-parser
 - cookie-sesson
 - morgan
+- method-override
 
 ## Getting Started
 

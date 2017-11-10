@@ -1,3 +1,6 @@
+// The URL Cruncher
+// An application to shorten URLs just like bit.ly
+
 const express = require("express");
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -25,11 +28,13 @@ app.use(morgan("dev"));
 // Sets up EJS views.
 app.set("view engine", "ejs");
 
+// Object for storing URLs. Includes sample URLs for testing the program.
 const urlDatabase = {
   "b2xVn2": { userID: "userRandomID", longURL: "http://www.lighthouselabs.ca" },
   "9sm5xK": { userID: "userRandomID2", longURL: "http://www.google.com" }
 };
 
+// Object for storing users. Inclues sample users for testing the program.
 const users = {
   "userRandomID": {
     id: "userRandomID",
@@ -113,6 +118,7 @@ function verifyCrunchedURL(crunchedURL) {
   return linkExistance;
 }
 
+// Checks that a users ID (and corresponding cookie) match a user in the database.
 function verifyUserID(userID) {
   let verification = false;
   for (let user in users) {
@@ -171,7 +177,6 @@ app.get("/login", (req, res) => {
   }
 });
 
-// Handle login and logout. Create or remove cookie.
 app.post("/login", (req, res) => {
   // Check that user inputed an email and password.
   if (!req.body.email || !req.body.password) {
@@ -184,30 +189,31 @@ app.post("/login", (req, res) => {
   } else if (!bcrypt.compareSync(req.body.password, users[getUserID(req.body.email)].password)) {
     res.status(403);
     res.send("<h3>Error 403. Incorrect password entered. <a href=\"/login\">Try again.</a></h3>");
+  // Sets cookie.
   } else {
     req.session.user_id = getUserID(req.body.email);
     res.redirect("/urls");
   }
 });
 
-// Logout. Clears cookies.
 app.post("/logout", (req, res) => {
+  // Clears the cookie (aka logs out).
   req.session = null;
   res.redirect("/urls");
 });
 
-// Where user goes to input new URLs to be crunched.
 app.get("/urls/new", (req, res) => {
   if (!verifyUserID(req.session.user_id)) {
     res.redirect("/login");
+  // Takes user to page to input new URLs.
   } else {
     let templateVars = { urlCollection: urlDatabase, userinfo: users[req.session.user_id] };
     res.render("urls_new", templateVars);
   }
 });
 
-// Page with all of the users URLs.
 app.get("/urls", (req, res) => {
+  // Displays all of the users crunched URLs.
   if (verifyUserID(req.session.user_id)) {
     let templateVars = { urlCollection: urlsForUser(req.session.user_id), userinfo: users[req.session.user_id] };
     res.render("urls_index", templateVars);
@@ -217,8 +223,8 @@ app.get("/urls", (req, res) => {
   }
 });
 
-// Takes in submissions of new URLs.
 app.post("/urls", (req, res) => {
+  // Takes in submissions of new URLs.
   if (verifyUserID(req.session.user_id)) {
     let crunch = generateRandomString();
     urlDatabase[crunch] = { "userID": req.session.user_id, "longURL": req.body["longURL"] };
@@ -229,7 +235,6 @@ app.post("/urls", (req, res) => {
   }
 });
 
-// Deletes a URL
 app.delete("/urls/:id", (req, res) => {
   if (!verifyUserID(req.session.user_id)) {
     res.status(403);
@@ -237,13 +242,13 @@ app.delete("/urls/:id", (req, res) => {
   } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     res.status(403);
     res.send("Error 403. You do not have permission to delete this entry.");
+  // Deletes the crunched URL entry.
   } else {
     delete urlDatabase[req.params.id];
-    res.redirect("/urls"); // Sends user back to the URLs page after deletion.
+    res.redirect("/urls");
   }
 });
 
-// Page for displaying a single URL and its shortened form.
 app.get("/urls/:id", (req, res) => {
   if (!verifyCrunchedURL(req.params.id)) {
     res.status(404);
@@ -253,27 +258,13 @@ app.get("/urls/:id", (req, res) => {
   } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     res.status(403);
     res.send("Error 403. This crunched URL does not belong to you.");
+  // Page for displaying a single URL and its shortened form.
   } else {
     let templateVars = { shortURL: req.params.id, urlCollection: urlDatabase, userinfo: users[req.session.user_id] };
     res.render("urls_show", templateVars);
   }
 });
 
-// Update the long URL associated with a crunched URL
-// app.post("/urls/:id", (req, res) => {
-//   if (req.session.user_id === undefined) {
-//     res.status(403);
-//     res.send("<h3>Error 403. You need to be <a href=\"/login\">logged in</a>.</h3>");
-//   } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
-//     res.status(403);
-//     res.send("Error 403. You do not have permission to edit this entry.");
-//   } else {
-//     urlDatabase[req.params.id].longURL = req.body.longURL;
-//     res.redirect("/urls");
-//   }
-// });
-
-// Update the long URL associated with a crunched URL
 app.put("/urls/:id", (req, res) => {
   if (!verifyUserID(req.session.user_id)) {
     res.status(403);
@@ -281,17 +272,17 @@ app.put("/urls/:id", (req, res) => {
   } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     res.status(403);
     res.send("Error 403. You do not have permission to edit this entry.");
+  // Update the long URL associated with a crunched URL
   } else {
     urlDatabase[req.params.id].longURL = req.body.longURL;
     res.redirect("/urls");
   }
 });
 
-// Redirect to the the long URL
 app.get("/u/:shortURL", (req, res) => {
-  // let longURL = urlDatabase[req.params.shortURL].longURL;
   if (verifyCrunchedURL(req.params.shortURL)) {
     res.redirect(urlDatabase[req.params.shortURL].longURL);
+  // Redirect to the the long URL
   } else {
     res.status(404)
     res.end("Error 404. Not found. Not a valid crunched link.");
