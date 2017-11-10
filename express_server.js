@@ -186,7 +186,7 @@ app.get("/register", (req, res) => {
   }
 });
 
-app.post("/register", (req, res) => {
+app.put("/register", (req, res) => {
   let userID = generateRandomString();
   // Check that user inputed an email and password.
   if (!req.body.email || !req.body.password) {
