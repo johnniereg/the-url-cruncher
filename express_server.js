@@ -54,8 +54,8 @@ const users = {
 };
 
 const analytics = {
-  "b2xVn2": { "visits": 3 },
-  "9sm5xK": { "visits": 5 }
+  "b2xVn2": { "visits": 0 },
+  "9sm5xK": { "visits": 0 }
 };
 
 // Make random strings for the crunched links and user IDs.
@@ -298,6 +298,11 @@ app.post("/urls/:id", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   if (verifyCrunchedURL(req.params.shortURL)) {
+    if (analytics[req.params.shortURL] === undefined) {
+      analytics[req.params.shortURL] = { "visits": 1};
+    } else {
+      analytics[req.params.shortURL]["visits"] += 1;
+    }
     res.redirect(urlDatabase[req.params.shortURL].longURL);
   // Redirect to the the long URL
   } else {
