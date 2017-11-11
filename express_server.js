@@ -166,16 +166,10 @@ function isUniqueVisitor(visitorid, crunchedURL) {
 
 function generateTimeStamp(userid) {
   let time = new Date();
-  let day = time.getDay();
-  let month = time.getMonth() + 1;
-  let year = time.getFullYear();
-  let hour = time.getHours() + 1;
-  let mins = time.getMinutes();
-  let stamp = `${userid} visited on ${day}-${month}-${year} at ${hour}:${mins}`;
+  let dateString = time.toUTCString();
+  let stamp = `${userid} visited on ${dateString}`;
   return stamp;
 }
-
-console.log(generateTimeStamp("johnnie"));
 
 // Routes //
 
