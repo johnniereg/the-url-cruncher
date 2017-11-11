@@ -5,10 +5,14 @@ that allows users to shorten long URLs (a la bit.ly).
 
 Users can also see how many total and unique clicks their crunched URL has received.
 
+Users also get a log of all clicks through their crunched URLs.
+
 ## Final Product
 
-!["URLs page."](https://github.com/johnniereg/tinyapp/blob/master/docs/urls-page.png?raw=true)
-!["Registration page."](https://github.com/johnniereg/tinyapp/blob/master/docs/register-page.png?raw=true)
+!["URLs page."](#)
+!["Single URL page."](#)
+!["Registration page."](#)
+!["New URL page."](#)
 
 ## Dependencies
 

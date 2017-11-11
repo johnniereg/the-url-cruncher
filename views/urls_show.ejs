@@ -18,9 +18,9 @@
   <h5>Total clicks: <%= visits %></h5> <h5>Unique clicks: <%= unique %></h5>
   <h5>Click log:</h5>
     <ul>
-      <% stamps.forEach(function(stamp) { %>
-        <li><%= stamp %></li>
-      <% }); %>
+      <% for (let i = stamps.length - 1; i >= 0; i--) { %>
+        <li><%= stamps[i] %></li>
+      <% } %>
     </ul>
 </body>
 </html>
