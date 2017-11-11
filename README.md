@@ -9,9 +9,16 @@ Users also get a log of all clicks through their crunched URLs.
 
 ## Final Product
 
-!["URLs page."](#)
+### URLs Page
+!["URLs page."](https://github.com/johnniereg/tinyapp/blob/master/docs/urls-page.png?raw=true)
+
+### Single URL Page
 !["Single URL page."](https://github.com/johnniereg/tinyapp/blob/master/docs/single-url-page.png?raw=true)
-!["Registration page."](#)
+
+### Registration Page
+!["Registration page."](https://github.com/johnniereg/tinyapp/blob/master/docs/register-page.png?raw=true)
+
+### New URL Page
 !["New URL page."](https://github.com/johnniereg/tinyapp/blob/master/docs/new-url-page.png?raw=true)
 
 ## Dependencies
