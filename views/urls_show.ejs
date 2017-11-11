@@ -15,7 +15,12 @@
   <a href="/urls"><button>Your URLs</button></a>
   <a href="/urls/new"><button>Crunch Another URL</button></a>
   <h4>URL Stats</h4>
-  <h5>Total clicks: <%= visits %></h5>
-  <h5>Unique clicks: <%= unique %>
+  <h5>Total clicks: <%= visits %></h5> <h5>Unique clicks: <%= unique %></h5>
+  <h5>Click log:</h5>
+    <ul>
+      <% stamps.forEach(function(stamp) { %>
+        <li><%= stamp %></li>
+      <% }); %>
+    </ul>
 </body>
 </html>

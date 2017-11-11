@@ -366,9 +366,9 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 // Turns on server and listens at specified PORT.
-// app.listen(PORT, () => {
-//   console.log(`The app cruncher is alive. Listening on port ${PORT}!`);
-// });
+app.listen(PORT, () => {
+  console.log(`The app cruncher is alive. Listening on port ${PORT}!`);
+});
 
 
 
