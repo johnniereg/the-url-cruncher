@@ -164,6 +164,7 @@ function isUniqueVisitor(visitorid, crunchedURL) {
   return unique;
 }
 
+// Makes unique timestamp for each visit.
 function generateTimeStamp(userid) {
   let time = new Date();
   let dateString = time.toUTCString();
@@ -174,6 +175,7 @@ function generateTimeStamp(userid) {
 // Routes //
 
 app.get("/", (req, res) => {
+  // If not logged in, redirect to log in page.
   if (!verifyUserID(req.session.user_id)) {
     res.redirect("/login");
   } else {
@@ -182,6 +184,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
+  // If user is already logged in and registered, redirect to URLs page.
   if (verifyUserID(req.session.user_id)) {
     res.redirect("/urls");
   } else {
@@ -211,6 +214,7 @@ app.put("/register", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
+  // If user is already logged in, redirect to URLs page.
   if (verifyUserID(req.session.user_id)) {
     res.redirect("/urls");
   } else {
@@ -324,7 +328,7 @@ app.post("/urls/:id", (req, res) => {
   } else if (urlDatabase[req.params.id].userID !== req.session.user_id) {
     res.status(403);
     res.send("<h3>Error 403. You do not have permission to edit this entry.</h3>");
-  // Update the long URL associated with a crunched URL
+  // Update the long URL associated with a crunched URL.
   } else {
     urlDatabase[req.params.id].longURL = req.body.longURL;
     res.redirect("/urls");
@@ -335,8 +339,6 @@ app.get("/u/:shortURL", (req, res) => {
   if (verifyCrunchedURL(req.params.shortURL)) {
     // Adds to total views counter.
     urlDatabase[req.params.shortURL].visits += 1;
-
-
     // Adds cookie to track unique visits.
     if (req.session.unique === undefined) {
       let uniqueVisitor = generateRandomString();
@@ -346,12 +348,9 @@ app.get("/u/:shortURL", (req, res) => {
     if (isUniqueVisitor(req.session.unique, req.params.shortURL) === true) {
       urlDatabase[req.params.shortURL].unique.push(req.session.unique)
     }
-
-    // Adds visit to time stamps
+    // Adds visit to time stamps.
     urlDatabase[req.params.shortURL].stamps.push( generateTimeStamp(req.session.unique));
-    console.log(urlDatabase[req.params.shortURL].stamps);
-
-    // Redirect to the the long URL
+    // Redirect to the the long URL.
     res.redirect(urlDatabase[req.params.shortURL].longURL);
   } else {
     res.status(404);
