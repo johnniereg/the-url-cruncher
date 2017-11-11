@@ -30,8 +30,18 @@ app.set("view engine", "ejs");
 
 // Object for storing URLs. Includes sample URLs for testing the program.
 const urlDatabase = {
-  "b2xVn2": { userID: "userRandomID", longURL: "http://www.lighthouselabs.ca", "visits": 0, "unique": ["userRandomID", "userRandomID2"] },
-  "9sm5xK": { userID: "userRandomID2", longURL: "http://www.google.com", "visits": 0, "unique": ["userRandomID3"] }
+  "b2xVn2": { userID: "userRandomID",
+              longURL: "http://www.lighthouselabs.ca",
+              visits: 0,
+              unique: [],
+              stamps: []
+            },
+  "9sm5xK": { userID: "userRandomID2",
+              longURL: "http://www.google.com",
+              visits: 0,
+              unique: [],
+              stamps:[]
+            }
 };
 
 // Object for storing users. Inclues sample users for testing the program.
@@ -154,19 +164,18 @@ function isUniqueVisitor(visitorid, crunchedURL) {
   return unique;
 }
 
-// Counts up unique visitors to a URL.
-// May not need.
-function countUniqueViews(crunchedURL) {
-  let views = 0;
-  for (let entry in urlDatabase) {
-    if (entry === crunchedURL) {
-      for (let unique in urlDatabase[entry].unique) {
-        views += 1;
-      }
-    }
-  }
-  return views;
+function generateTimeStamp(userid) {
+  let time = new Date();
+  let day = time.getDay();
+  let month = time.getMonth() + 1;
+  let year = time.getFullYear();
+  let hour = time.getHours() + 1;
+  let mins = time.getMinutes();
+  let stamp = `${userid} visited on ${day}-${month}-${year} at ${hour}:${mins}`;
+  return stamp;
 }
+
+console.log(generateTimeStamp("johnnie"));
 
 // Routes //
 
@@ -268,7 +277,8 @@ app.put("/urls", (req, res) => {
     urlDatabase[crunch] = { "userID": req.session.user_id,
                             "longURL": req.body.longURL,
                             "visits": 0,
-                            "unique": []
+                            "unique": [],
+                            "stamps": []
                            };
     res.redirect(`http://localhost:8080/urls/${crunch}`);
   } else {
@@ -306,7 +316,9 @@ app.get("/urls/:id", (req, res) => {
                          urlCollection: urlDatabase,
                          userinfo: users[req.session.user_id],
                          visits: countViews(req.params.id),
-                         unique: urlDatabase[req.params.id].unique.length };
+                         unique: urlDatabase[req.params.id].unique.length,
+                         stamps: urlDatabase[req.params.id].stamps
+                       };
     res.render("urls_show", templateVars);
   }
 });
@@ -329,6 +341,8 @@ app.get("/u/:shortURL", (req, res) => {
   if (verifyCrunchedURL(req.params.shortURL)) {
     // Adds to total views counter.
     urlDatabase[req.params.shortURL].visits += 1;
+
+
     // Adds cookie to track unique visits.
     if (req.session.unique === undefined) {
       let uniqueVisitor = generateRandomString();
@@ -338,6 +352,11 @@ app.get("/u/:shortURL", (req, res) => {
     if (isUniqueVisitor(req.session.unique, req.params.shortURL) === true) {
       urlDatabase[req.params.shortURL].unique.push(req.session.unique)
     }
+
+    // Adds visit to time stamps
+    urlDatabase[req.params.shortURL].stamps.push( generateTimeStamp(req.session.unique));
+    console.log(urlDatabase[req.params.shortURL].stamps);
+
     // Redirect to the the long URL
     res.redirect(urlDatabase[req.params.shortURL].longURL);
   } else {
@@ -347,9 +366,9 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 // Turns on server and listens at specified PORT.
-app.listen(PORT, () => {
-  console.log(`The app cruncher is alive. Listening on port ${PORT}!`);
-});
+// app.listen(PORT, () => {
+//   console.log(`The app cruncher is alive. Listening on port ${PORT}!`);
+// });
 
 
 
