@@ -3,15 +3,14 @@
 <head>
   <title>The URL Cruncher</title>
 </head>
-<body style="font-family:sans-serif;padding:10px">
+<body style="font-family:sans-serif;padding:10px;background-color:darkgoldenrod">
   <% include ./partials/_header %>
   <h3>Crunch a new URL</h3>
-  <form method="POST" action="/urls?_method=PUT" style="margin:25px;">
-  <form method="POST" action="/urls?_PUT" style="margin:25px;">
-    <label for="longURL">Enter a URL:</label>
-    <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px">
+  <form method="POST" action="/urls">
+    <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px;">
     <input type="submit" value="Submit">
   </form>
+  <br>
   <a href="/urls"><button>Your URLs</button></a>
 </body>
 </html>

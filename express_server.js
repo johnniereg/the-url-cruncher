@@ -30,18 +30,20 @@ app.set("view engine", "ejs");
 
 // Object for storing URLs. Includes sample URLs for testing the program.
 const urlDatabase = {
-  "b2xVn2": { userID: "userRandomID",
-              longURL: "http://www.lighthouselabs.ca",
-              visits: 0,
-              unique: [],
-              stamps: []
-            },
-  "9sm5xK": { userID: "userRandomID2",
-              longURL: "http://www.google.com",
-              visits: 0,
-              unique: [],
-              stamps:[]
-            }
+  "b2xVn2": {
+    userID: "userRandomID",
+    longURL: "http://www.lighthouselabs.ca",
+    visits: 0,
+    unique: [],
+    stamps: []
+  },
+  "9sm5xK": {
+    userID: "userRandomID2",
+    longURL: "http://www.google.com",
+    visits: 0,
+    unique: [],
+    stamps:[]
+  }
 };
 
 // Object for storing users. Inclues sample users for testing the program.
@@ -192,16 +194,16 @@ app.get("/register", (req, res) => {
   }
 });
 
-app.put("/register", (req, res) => {
+app.post("/register", (req, res) => {
   let userID = generateRandomString();
   // Check that user inputed an email and password.
   if (!req.body.email || !req.body.password) {
     res.status(400);
-    res.send("<h3>Error. Must enter a valid email and password. <a href=\"/register\">Try again.</a></h3>");
+    res.send("<h3>Error 400. Must enter a valid email and password. <a href=\"/register\">Try again.</a></h3>");
   // Check that the email isn't already registered.
   } else if (checkUserExistance(req.body.email)) {
     res.status(400);
-    res.send("<h3>Error. That email is already registered. <a href=\"/register\">Try again.</a></h3>");
+    res.send("<h3>Error 400. That email is already registered. <a href=\"/register\">Try again.</a></h3>");
   } else {
     users[userID] = {
       "id": userID,
@@ -241,10 +243,10 @@ app.post("/login", (req, res) => {
   }
 });
 
-app.post("/logout", (req, res) => {
+app.delete("/logout", (req, res) => {
   // Clears the cookie (aka logs out).
   req.session = null;
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 
 app.get("/urls/new", (req, res) => {
@@ -252,7 +254,10 @@ app.get("/urls/new", (req, res) => {
     res.redirect("/login");
   // Takes user to page to input new URLs.
   } else {
-    let templateVars = { urlCollection: urlDatabase, userinfo: users[req.session.user_id] };
+    let templateVars = {
+      urlCollection: urlDatabase,
+      userinfo: users[req.session.user_id]
+    };
     res.render("urls_new", templateVars);
   }
 });
@@ -260,7 +265,10 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls", (req, res) => {
   // Displays all of the users crunched URLs.
   if (verifyUserID(req.session.user_id)) {
-    let templateVars = { urlCollection: urlsForUser(req.session.user_id), userinfo: users[req.session.user_id] };
+    let templateVars = {
+      urlCollection: urlsForUser(req.session.user_id),
+      userinfo: users[req.session.user_id]
+    };
     res.render("urls_index", templateVars);
   } else {
     res.status(403);
@@ -268,20 +276,26 @@ app.get("/urls", (req, res) => {
   }
 });
 
-app.put("/urls", (req, res) => {
+app.post("/urls", (req, res) => {
   // Takes in submissions of new URLs.
+  if (!req.body.longURL) {
+    res.status(403);
+    res.send("<h3>Error 403. Form cannot be empty.</a></h3>");
+    return;
+  }
   if (verifyUserID(req.session.user_id)) {
     let crunch = generateRandomString();
-    urlDatabase[crunch] = { "userID": req.session.user_id,
-                            "longURL": req.body.longURL,
-                            "visits": 0,
-                            "unique": [],
-                            "stamps": []
-                           };
-    res.redirect(`http://localhost:8080/urls/${crunch}`);
+    urlDatabase[crunch] = {
+      "userID": req.session.user_id,
+      "longURL": req.body.longURL,
+      "visits": 0,
+      "unique": [],
+      "stamps": []
+    };
+    res.redirect(`urls/${crunch}`);
   } else {
     res.status(403);
-    res.send("<h3>Error 403. You need to be <a href=\"/login\">logged in</a>.</h3>");
+    res.send("<h3>Error 403. You need to be <a href=\"/login\">logged in.</a></h3>");
   }
 });
 
@@ -310,18 +324,24 @@ app.get("/urls/:id", (req, res) => {
     res.send("<h3>Error 403. This crunched URL does not belong to you.</h3>");
   // Page for displaying a single URL and its shortened form.
   } else {
-    let templateVars = { shortURL: req.params.id,
-                         urlCollection: urlDatabase,
-                         userinfo: users[req.session.user_id],
-                         visits: countViews(req.params.id),
-                         unique: urlDatabase[req.params.id].unique.length,
-                         stamps: urlDatabase[req.params.id].stamps
-                       };
+    let templateVars = {
+      shortURL: req.params.id,
+      urlCollection: urlDatabase,
+      userinfo: users[req.session.user_id],
+      visits: countViews(req.params.id),
+      unique: urlDatabase[req.params.id].unique.length,
+      stamps: urlDatabase[req.params.id].stamps
+    };
     res.render("urls_show", templateVars);
   }
 });
 
-app.post("/urls/:id", (req, res) => {
+app.put("/urls/:id", (req, res) => {
+  if (!req.body.longURL) {
+    res.status(403);
+    res.send("<h3>Error 403. Form cannot be empty.</a></h3>");
+    return;
+  }
   if (!verifyUserID(req.session.user_id)) {
     res.status(403);
     res.send("<h3>Error 403. You need to be <a href=\"/login\">logged in</a>.</h3>");

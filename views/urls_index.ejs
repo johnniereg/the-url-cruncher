@@ -3,15 +3,15 @@
 <head>
   <title>The URL Cruncher</title>
 </head>
-<body style="font-family:sans-serif;padding:10px">
+<body style="font-family:sans-serif;padding:10px;background-color:darkgoldenrod">
   <% include ./partials/_header %>
   <h3>Your crunched URLs</h3>
-  <table style="width:75%">
+  <table style="width:60%">
     <% for (let entry in urlCollection) { %>
       <tr>
-        <td><b><%= "Crunched link: " + entry %></b></td>
+        <td><b><%= entry %></b></td>
         <td><a href="<%= urlCollection[entry] %>"> <%= urlCollection[entry].longURL %></a></td>
-        <td><form method="GET" action="/urls/<%= entry %>"><input type="submit" value="Edit"></form></td>
+        <td><form method="GET" action="/urls/<%= entry %>"><input type="submit" value="More"></form></td>
         <td><form method="POST" action="/urls/<%= entry %>?_method=DELETE"><input type="submit" value="Delete"></form></td>
       </tr>
     <% } %>

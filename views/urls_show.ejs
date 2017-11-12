@@ -3,23 +3,21 @@
 <head>
   <title>The URL Cruncher</title>
 </head>
-<body style="font-family:sans-serif;padding:10px">
+<body style="font-family:sans-serif;padding:10px;background-color:darkgoldenrod">
   <% include ./partials/_header %>
-  <h3>Crunched URL: <%= shortURL %></h3>
-  <h5>Update the long URL.</h5>
-  <form method="POST" action="/urls/<%= shortURL %>">
-    <input id="longURL" type="text" name="longURL" placeholder="<%= urlCollection[shortURL].longURL %>" style="width: 300px">
+  <h3>Crunched URL: <a href="/u/<%= shortURL %>" target="_blank"><%= shortURL %></a> </h3>
+  <form method="POST" action="/urls/<%= shortURL %>?_method=PUT">
+    <input id="longURL" type="text" name="longURL" placeholder="<%= urlCollection[shortURL].longURL %>" style="width:300px">
     <input type="submit" value="Update">
   </form>
   <br>
   <a href="/urls"><button>Your URLs</button></a>
-  <a href="/urls/new"><button>Crunch Another URL</button></a>
   <h4>URL Stats</h4>
-  <h5>Total clicks: <%= visits %></h5> <h5>Unique clicks: <%= unique %></h5>
-  <h5>Click log:</h5>
+  <h5>Total clicks: <%= visits %><br>Unique clicks: <%= unique %></h5>
+  <h4>Click log:</h5>
     <ul>
       <% for (let i = stamps.length - 1; i >= 0; i--) { %>
-        <li><%= stamps[i] %></li>
+        <li style="font-size:14px"><%= stamps[i] %></li>
       <% } %>
     </ul>
 </body>
